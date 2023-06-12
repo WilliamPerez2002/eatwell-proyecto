@@ -56,7 +56,7 @@ class _MyRegisterState extends State<MyRegister> {
       return 'No se permiten números en el $opcion';
     }
 
-    if (!RegExp(r'^[A-Z][a-z]*$').hasMatch(value)) {
+    if (!RegExp(r'^[A-ZÑÁÉÍÓÚÜ][a-zñáéíóúü]*$').hasMatch(value)) {
       return 'el $opcion debe comenzar con mayúscula';
     }
 

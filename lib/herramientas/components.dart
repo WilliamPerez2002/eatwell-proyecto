@@ -111,7 +111,7 @@ class TextFormFields extends StatelessWidget {
                   return 'No se permiten números';
                 }
 
-                if (!RegExp(r'^[A-Z][a-z]*$').hasMatch(value)) {
+                if (!RegExp(r'^[A-ZÑÁÉÍÓÚÜ][a-zñáéíóúü]*$').hasMatch(value)) {
                   return 'nombre con la primera letra mayúscula';
                 }
 
