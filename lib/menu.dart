@@ -12,8 +12,10 @@ class _menuState extends State<menu> {
   Widget build(BuildContext context) {
     return Container(
         child: Scaffold(
+            backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
             appBar: AppBar(
-              title: const Text('Material App Bar'),
+              title: const Text('Menu'),
+              backgroundColor: Colors.white,
             ),
             body: const Center(
               child: Text('Hello Worlsd'),

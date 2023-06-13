@@ -23,7 +23,45 @@ class _MyLoginState extends State<MyLogin> {
 
   Future<bool> controlarSignIn() async {
     return await conexion.existeUsuario(
-        nombreUsuarioController.text, contrasenaController.text);
+        nombreUsuarioController.text.trim(), contrasenaController.text.trim());
+  }
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text('Cargando...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  Future<bool> fetchDataFromSQL(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await controlarSignIn();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
   }
 
   @override
@@ -119,7 +157,7 @@ class _MyLoginState extends State<MyLogin> {
                               // Validate the form when the button is pressed //formKey.currentState!.validate()
                               if (_formKey.currentState!.validate()) {
                                 // Form is valid, perform additional actions here
-                                if (await controlarSignIn()) {
+                                if (await fetchDataFromSQL(context)) {
                                   Navigator.pushNamed(context, 'menu');
                                 } else {
                                   showDialog(

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -36,14 +36,52 @@ class _MyRegisterState extends State<MyRegister> {
 
   Future<bool> insertar() async {
     return await conexion.ingreso(
-        nombreUsuarioController.text,
-        emailController.text,
-        contrasenaController.text,
-        fechaNacimientoController.text,
-        nombreController.text,
-        apellidoController.text,
-        int.parse(estaturaController.text),
-        double.parse(pesoController.text));
+        nombreUsuarioController.text.trim(),
+        emailController.text.trim(),
+        contrasenaController.text.trim(),
+        fechaNacimientoController.text.trim(),
+        nombreController.text.trim(),
+        apellidoController.text.trim(),
+        int.parse(estaturaController.text.trim()),
+        double.parse(pesoController.text.trim()));
+  }
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text('Cargando...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  Future<bool> insertarSQL(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await insertar();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
   }
 
 //VALIDACIONES DE LOS CAMPOS DE TEXTO
@@ -112,11 +150,11 @@ class _MyRegisterState extends State<MyRegister> {
       return 'No se permiten letras en el peso';
     }
 
-    if (int.parse(value) > 590.00) {
+    if (double.parse(value) > 590.00) {
       return 'Peso muy alto';
     }
 
-    if (int.parse(value) < 10.00) {
+    if (double.parse(value) < 10.00) {
       return 'Peso muy bajo';
     }
 
@@ -184,43 +222,43 @@ class _MyRegisterState extends State<MyRegister> {
   }
 
   String? controlGeneral() {
-    String? value = valNombreApellido(nombreController.text, "nombre");
+    String? value = valNombreApellido(nombreController.text.trim(), "nombre");
 
     if (value != null) {
       return value;
     }
 
-    value = valNombreApellido(apellidoController.text, "apellido");
+    value = valNombreApellido(apellidoController.text.trim(), "apellido");
 
     if (value != null) {
       return value;
     }
 
-    value = valEstatura(estaturaController.text);
+    value = valEstatura(estaturaController.text.trim());
 
     if (value != null) {
       return value;
     }
 
-    value = valPeso(pesoController.text);
+    value = valPeso(pesoController.text.trim());
 
     if (value != null) {
       return value;
     }
 
-    value = valNomUsuario(nombreUsuarioController.text);
+    value = valNomUsuario(nombreUsuarioController.text.trim());
 
     if (value != null) {
       return value;
     }
 
-    value = valEmail(emailController.text);
+    value = valEmail(emailController.text.trim());
 
     if (value != null) {
       return value;
     }
 
-    value = valFecha(fechaNacimientoController.text);
+    value = valFecha(fechaNacimientoController.text.trim());
 
     if (value != null) {
       return value;
@@ -446,12 +484,21 @@ class _MyRegisterState extends State<MyRegister> {
 
                                 if (valor == null) {
                                   // Form is valid, perform additional actions here
-                                  if (!await conexion.existe(
+                                  if (!await conexion.existeSQL(context,
                                       nombreUsuarioController.text, "ID_USU")) {
-                                    if (!await conexion.existe(
+                                    if (!await conexion.existeSQL(context,
                                         emailController.text, "EMA_USU")) {
+                                      print("entre");
                                       //Aqui se hace el insert
-                                      if (await insertar()) {
+                                      if (await insertarSQL(context)) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => ErrorDialog(
+                                              text:
+                                                  'Usuario agregado con exito'),
+                                          barrierDismissible: false,
+                                        );
+
                                         Navigator.pushNamed(context, 'menu');
                                       } else {
                                         showDialog(

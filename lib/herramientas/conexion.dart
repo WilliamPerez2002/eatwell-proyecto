@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 
 class conexion_Mysql {
@@ -30,7 +31,11 @@ class conexion_Mysql {
 
   Future<bool> existeUsuario(String usuario, String contrasena) async {
     try {
+      await initialize();
+
       var results = await connection.query('select * from USUARIOS');
+
+      connection.close();
 
       if (results.isNotEmpty) {
         for (var row in results) {
@@ -51,7 +56,11 @@ class conexion_Mysql {
 
   Future<bool> existe(String valor, String columna) async {
     try {
+      await initialize();
+
       var results = await connection.query('select $columna from USUARIOS');
+
+      connection.close();
 
       if (results.isNotEmpty) {
         for (var row in results) {
@@ -79,6 +88,8 @@ class conexion_Mysql {
       int estatura,
       double peso) async {
     try {
+      await initialize();
+
       await connection.query(
           'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?, ?)',
           [
@@ -91,50 +102,52 @@ class conexion_Mysql {
             estatura,
             peso
           ]);
+
+      connection.close();
       return true;
     } catch (e) {
       print('Error querying MySQL: $e');
       return false;
     }
   }
-}
 
-
-
-/*
-Future main() async {
-  final conn = await MySqlConnection.connect(ConnectionSettings(
-      host: 'sql9.freesqldatabase.com',
-      port: 3306,
-      user: 'sql9623690',
-      db: 'sql9623690',
-      password: 'PMI7FfYFf8'));
-
-  await conn.query(
-      'CREATE TABLE amigos (id int NOT NULL AUTO_INCREMENT PRIMARY KEY, name varchar(255), email varchar(255), age int)');
-
-  var result = await conn.query(
-      'insert into amigos (name, email, age) values (?, ?, ?)',
-      ['Bob', 'bob@bob.com', 25]);
-  print('Inserted row id=${result.insertId}');
-
-  var results = await conn.query(
-      'select name, email, age from users where id = ?', [result.insertId]);
-  for (var row in results) {
-    print('Name: ${row[0]}, email: ${row[1]} age: ${row[2]}');
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Color.fromRGBO(75, 68, 82, 1.0),
+                ),
+                SizedBox(width: 20),
+                Text('Cargando...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  // Update some data
-  await conn.query('update users set age=? where name=?', [26, 'Bob']);
-
-  // Query again database using a parameterized query
-  var results2 = await conn.query(
-      'select name, email, age from users where id = ?', [result.insertId]);
-  for (var row in results2) {
-    print('Name: ${row[0]}, email: ${row[1]} age: ${row[2]}');
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
   }
 
-  // Finally, close the connection
-  await conn.close();
+  Future<bool> existeSQL(
+      BuildContext context, String valor, String columna) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await existe(valor, columna);
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
 }
-  */

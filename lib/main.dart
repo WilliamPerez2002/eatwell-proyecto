@@ -4,9 +4,15 @@ import 'herramientas/conexion.dart';
 import 'login.dart';
 import 'menu.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   // ignore: unused_local_variable
   final conexion = conexion_Mysql();
 

@@ -107,79 +107,80 @@ class TextFormFields extends StatelessWidget {
               }
 
               if (validacion == 1) {
-                if (value.contains(RegExp(r'[0-9]'))) {
+                if (value.trim().contains(RegExp(r'[0-9]'))) {
                   return 'No se permiten números';
                 }
 
-                if (!RegExp(r'^[A-ZÑÁÉÍÓÚÜ][a-zñáéíóúü]*$').hasMatch(value)) {
+                if (!RegExp(r'^[A-ZÑÁÉÍÓÚÜ][a-zñáéíóúü]*$')
+                    .hasMatch(value.trim())) {
                   return 'nombre con la primera letra mayúscula';
                 }
 
-                if (value.length < 3) {
+                if (value.trim().length < 3) {
                   return 'muy corto';
                 }
 
-                if (value.length > 20) {
+                if (value.trim().length > 20) {
                   return 'muy largo';
                 }
               }
 
               if (validacion == 3) {
-                if (value.contains(RegExp(r'[a-zA-Z]'))) {
+                if (value.trim().contains(RegExp(r'[a-zA-Z]'))) {
                   return 'No se permiten letras';
                 }
 
-                if (value.contains(RegExp(r'[^0-9]'))) {
+                if (value.trim().contains(RegExp(r'[^0-9]'))) {
                   return 'Solo se permiten números enteros';
                 }
 
-                if (value.length > 3) {
+                if (value.trim().length > 3) {
                   return 'Estatura muy grande';
                 }
 
-                if (value.length < 2) {
+                if (value.trim().length < 2) {
                   return 'Estatura muy pequeña';
                 }
 
-                if (int.parse(value) < 60) {
+                if (int.parse(value.trim()) < 60) {
                   return 'Estatura muy pequeña';
                 }
 
-                if (int.parse(value) > 250) {
+                if (int.parse(value.trim()) > 250) {
                   return 'Estatura muy grande';
                 }
               }
 
               if (validacion == 4) {
-                if (value.contains(RegExp(r'[a-zA-Z]'))) {
+                if (value.trim().contains(RegExp(r'[a-zA-Z]'))) {
                   return 'No se permiten letras';
                 }
 
-                if (int.parse(value) > 590.00) {
+                if (double.parse(value.trim()) > 590.00) {
                   return 'Peso muy alto';
                 }
 
-                if (int.parse(value) < 10.00) {
+                if (double.parse(value.trim()) < 10.00) {
                   return 'Peso muy bajo';
                 }
 
                 RegExp regex = RegExp(r'^\d+(\.\d{1,2})?$');
 
-                if (!regex.hasMatch(value)) {
+                if (!regex.hasMatch(value.trim())) {
                   return 'Ingrese un peso válido con hasta 2 decimales';
                 }
               }
 
               if (validacion == 5) {
-                if (value.contains(RegExp(r'[^a-zA-Z0-9]'))) {
+                if (value.trim().contains(RegExp(r'[^a-zA-Z0-9]'))) {
                   return 'Solo se permiten letras y números';
                 }
 
-                if (value.length < 3) {
+                if (value.trim().length < 3) {
                   return 'muy corto';
                 }
 
-                if (value.length > 20) {
+                if (value.trim().length > 20) {
                   return 'muy largo';
                 }
               }
@@ -187,14 +188,15 @@ class TextFormFields extends StatelessWidget {
               if (validacion == 6) {
                 final emailRegex =
                     RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*(\.\w+)$');
-                if (!emailRegex.hasMatch(value)) {
+                if (!emailRegex.hasMatch(value.trim())) {
                   return 'Ingrese un email válido';
                 }
               }
 
               if (validacion == 7) {
                 try {
-                  DateTime fecha = DateFormat('dd/MM/yyyy').parseStrict(value);
+                  DateTime fecha =
+                      DateFormat('dd/MM/yyyy').parseStrict(value.trim());
 
                   if (fecha.year > DateTime.now().year) {
                     return 'Ingrese una fecha menor a ${DateTime.now().year}';
@@ -230,7 +232,7 @@ class TextFormFields extends StatelessWidget {
                 ),
                 errorStyle: TextStyle(
                   color: errorColor,
-                  fontSize: 15,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                 )),
           ),
