@@ -37,7 +37,9 @@ class _MyLoginState extends State<MyLogin> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                CircularProgressIndicator(
+                  color: Color.fromRGBO(75, 68, 82, 1.0),
+                ),
                 SizedBox(width: 20),
                 Text('Cargando...'),
               ],

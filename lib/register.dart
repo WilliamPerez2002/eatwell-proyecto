@@ -57,7 +57,9 @@ class _MyRegisterState extends State<MyRegister> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                CircularProgressIndicator(
+                  color: Color.fromRGBO(75, 68, 82, 1.0),
+                ),
                 SizedBox(width: 20),
                 Text('Cargando...'),
               ],
@@ -72,7 +74,7 @@ class _MyRegisterState extends State<MyRegister> {
     Navigator.of(context).pop();
   }
 
-  Future<bool> insertarSQL(BuildContext context) async {
+  Future<void> insertarSQL(BuildContext context) async {
     // Mostrar el diálogo de carga
     showLoadingDialog(context);
 
@@ -80,8 +82,6 @@ class _MyRegisterState extends State<MyRegister> {
 
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
-
-    return dat;
   }
 
 //VALIDACIONES DE LOS CAMPOS DE TEXTO
@@ -104,6 +104,22 @@ class _MyRegisterState extends State<MyRegister> {
 
     if (value.length > 20) {
       return '$opcion muy largo';
+    }
+
+    return null;
+  }
+
+  String? valContrasena(String value) {
+    if (value.isEmpty) {
+      return 'La contraseña está vacía';
+    }
+
+    if (value.length < 8) {
+      return 'La contraseña debe tener al menos 8 caracteres';
+    }
+
+    if (value.length > 20) {
+      return 'La contraseña debe tener menos de 20 caracteres';
     }
 
     return null;
@@ -158,7 +174,7 @@ class _MyRegisterState extends State<MyRegister> {
       return 'Peso muy bajo';
     }
 
-    RegExp regex = RegExp(r'^\d+(\.\d{1,2})?$');
+    RegExp regex = RegExp(r'^\d{2,3}(\.\d{1,2})?$');
 
     if (!regex.hasMatch(value)) {
       return 'Ingrese un peso válido con hasta 2 decimales';
@@ -259,6 +275,12 @@ class _MyRegisterState extends State<MyRegister> {
     }
 
     value = valFecha(fechaNacimientoController.text.trim());
+
+    if (value != null) {
+      return value;
+    }
+
+    value = valContrasena(contrasenaController.text.trim());
 
     if (value != null) {
       return value;
@@ -382,7 +404,7 @@ class _MyRegisterState extends State<MyRegister> {
                       TextFormFields(
                         hintText: 'Contraseña',
                         controller: contrasenaController,
-                        validacion: 0,
+                        validacion: 2,
                         errorColor: Colors.red,
                         obscureText: true,
                       ),
@@ -483,47 +505,52 @@ class _MyRegisterState extends State<MyRegister> {
                                 String? valor = controlGeneral();
 
                                 if (valor == null) {
-                                  // Form is valid, perform additional actions here
-                                  if (!await conexion.existeSQL(context,
-                                      nombreUsuarioController.text, "ID_USU")) {
-                                    if (!await conexion.existeSQL(context,
-                                        emailController.text, "EMA_USU")) {
-                                      print("entre");
-                                      //Aqui se hace el insert
-                                      if (await insertarSQL(context)) {
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => ErrorDialog(
-                                              text:
-                                                  'Usuario agregado con exito'),
-                                          barrierDismissible: false,
-                                        );
+                                  //Aqui se hace el insert
 
-                                        Navigator.pushNamed(context, 'menu');
-                                      } else {
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => ErrorDialog(
-                                              text: 'Ingrese todos los datos'),
-                                          barrierDismissible: false,
-                                        );
-                                        print("Error al ingresar");
-                                      }
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (_) => ErrorDialog(
-                                            text: 'Email ya existente'),
-                                        barrierDismissible: false,
-                                      );
-                                    }
-                                  } else {
-                                    showDialog(
+                                  try {
+                                    await insertarSQL(context);
+
+                                    await showDialog(
                                       context: context,
-                                      builder: (_) => ErrorDialog(
-                                          text: 'Usuario ya existente'),
+                                      builder: (_) => ExitoDialog(
+                                          text: 'Usuario agregado con exito'),
                                       barrierDismissible: false,
                                     );
+
+                                    Navigator.pushNamed(context, 'menu');
+                                  } catch (e) {
+                                    print(e);
+
+                                    if (e.toString().contains("'PRIMARY'")) {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (_) => ErrorDialog(
+                                            text:
+                                                'Nombre de usuario ya existente'),
+                                        barrierDismissible: false,
+                                      );
+                                      Navigator.of(context).pop();
+                                    } else if (e
+                                        .toString()
+                                        .contains("'uk_email'")) {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (_) => ErrorDialog(
+                                            text: 'email ya existente'),
+                                        barrierDismissible: false,
+                                      );
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (_) => ErrorDialog(
+                                            text: 'Ingrese todos los datos'),
+                                        barrierDismissible: false,
+                                      );
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
+                                      print("Error al ingresar");
+                                    }
                                   }
                                 } else {
                                   showDialog(

@@ -87,28 +87,23 @@ class conexion_Mysql {
       String apellido,
       int estatura,
       double peso) async {
-    try {
-      await initialize();
+    await initialize();
 
-      await connection.query(
-          'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?, ?)',
-          [
-            nombreUsuario,
-            email,
-            contrasena,
-            fechaNac,
-            nombre,
-            apellido,
-            estatura,
-            peso
-          ]);
+    await connection.query(
+        'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?, ?)',
+        [
+          nombreUsuario,
+          email,
+          contrasena,
+          fechaNac,
+          nombre,
+          apellido,
+          estatura,
+          peso
+        ]);
 
-      connection.close();
-      return true;
-    } catch (e) {
-      print('Error querying MySQL: $e');
-      return false;
-    }
+    connection.close();
+    return true;
   }
 
   void showLoadingDialog(BuildContext context) {
@@ -119,7 +114,7 @@ class conexion_Mysql {
         return Dialog(
           child: Container(
             padding: EdgeInsets.all(20),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircularProgressIndicator(

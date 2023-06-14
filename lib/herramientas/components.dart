@@ -80,7 +80,7 @@ class TextFormFields extends StatelessWidget {
   final bool obscureText;
 
   // Esta variable es para saber a que campo estamos validando
-//1: nombre y apellido, 3:estatura, 4:peso, 5: nombreUsuario, 6:email
+//1: nombre y apellido, 2: contraseña 3:estatura, 4:peso, 5: nombreUsuario, 6:email
 //7: fecha de nacimiento
 
   const TextFormFields(
@@ -117,6 +117,16 @@ class TextFormFields extends StatelessWidget {
                 }
 
                 if (value.trim().length < 3) {
+                  return 'muy corto';
+                }
+
+                if (value.trim().length > 20) {
+                  return 'muy largo';
+                }
+              }
+
+              if (validacion == 2) {
+                if (value.trim().length < 8) {
                   return 'muy corto';
                 }
 
@@ -319,6 +329,28 @@ class ErrorDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Error!'),
+      content: Text(text),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Aceptar'),
+        ),
+      ],
+      elevation: 54.0,
+    );
+  }
+}
+
+class ExitoDialog extends StatelessWidget {
+  final String text;
+  const ExitoDialog({Key? key, required this.text}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Exito!'),
       content: Text(text),
       actions: <Widget>[
         TextButton(
