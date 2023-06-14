@@ -203,7 +203,111 @@ class TextFormFields extends StatelessWidget {
                 }
               }
 
-              if (validacion == 7) {
+              return null;
+            },
+            controller: controller,
+            decoration: InputDecoration(
+                hintText: hintText,
+                // ignore: prefer_const_constructors
+                hintStyle: TextStyle(
+                  fontFamily: 'Lato',
+                  fontSize: 20,
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                hoverColor: Colors.white,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color.fromRGBO(146, 181, 95, 1.0), width: 2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                errorStyle: TextStyle(
+                  color: errorColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                )),
+          ),
+        ]));
+  }
+}
+
+class TextFormFieldsDate extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final int validacion;
+  final Color errorColor;
+  final bool obscureText;
+
+  const TextFormFieldsDate(
+      {Key? key,
+      required this.hintText,
+      required this.controller,
+      required this.validacion,
+      required this.errorColor,
+      required this.obscureText})
+      : super(key: key);
+
+  @override
+  State<TextFormFieldsDate> createState() => _textFormFieldsDate();
+}
+
+// Esta variable es para saber a que campo estamos validando
+//1: nombre y apellido, 2: contraseña 3:estatura, 4:peso, 5: nombreUsuario, 6:email
+//7: fecha de nacimiento
+
+class _textFormFieldsDate extends State<TextFormFieldsDate> {
+  bool presion = false;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1980),
+      lastDate: DateTime(2025),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color.fromRGBO(
+                  75, 68, 82, 1.0), // Cambia el color principal del DatePicker
+              onPrimary:
+                  Colors.white, // Cambia el color del texto del DatePicker
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
+      setState(() {
+        widget.controller.text =
+            formattedDate; // Actualiza el valor del TextFormField
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        // ignore: prefer_const_constructors
+        margin: EdgeInsets.symmetric(horizontal: 55, vertical: 0),
+        child: Column(children: [
+          TextFormField(
+            obscureText: widget.obscureText,
+            onSaved: (value) {},
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Campo vacío';
+              }
+
+              if (widget.validacion == 7) {
                 try {
                   DateTime fecha =
                       DateFormat('dd/MM/yyyy').parseStrict(value.trim());
@@ -224,9 +328,24 @@ class TextFormFields extends StatelessWidget {
 
               return null;
             },
-            controller: controller,
+            controller: widget.controller,
+            readOnly: true,
+            onTap: () {
+              presion = true;
+              _selectDate(
+                  context); // Abre el DatePicker cuando se toca el TextFormField
+            },
+            onChanged: (value) {
+              print(" HOAAAAAAAAAAAAA");
+              presion = false;
+            },
             decoration: InputDecoration(
-                hintText: hintText,
+                hintText: widget.hintText,
+                suffixIcon: Icon(Icons.calendar_today_outlined,
+                    color: presion
+                        ? Color.fromRGBO(146, 181, 95, 1.0)
+                        : Colors.grey),
+
                 // ignore: prefer_const_constructors
                 hintStyle: TextStyle(
                   fontFamily: 'Lato',
@@ -237,11 +356,16 @@ class TextFormFields extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.white,
                 hoverColor: Colors.white,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color: Color.fromRGBO(146, 181, 95, 1.0), width: 2),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 errorStyle: TextStyle(
-                  color: errorColor,
+                  color: widget.errorColor,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 )),

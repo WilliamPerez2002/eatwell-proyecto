@@ -196,7 +196,48 @@ class _MyLoginState extends State<MyLogin> {
                               height: 0,
                               letterSpacing: 0)),
                       TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10.0), // Personaliza el radio del borde
+                                ),
+                                title: Text('¿Olvidaste tu contraseña?',
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromRGBO(75, 68, 82, 1.0))),
+                                content: Container(
+                                  height: 200,
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                            'Ingresa tu correo electrónico para poder enviarte un correo con tu contraseña momentanea'),
+                                        SizedBox(height: 30),
+                                        TextFormField(),
+                                      ]),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Aceptar',
+                                      style: TextStyle(
+                                          color:
+                                              Color.fromRGBO(75, 68, 82, 1.0)),
+                                    ),
+                                  ),
+                                ],
+                                elevation: 54.0,
+                              ),
+                              barrierDismissible: false,
+                            );
+                          },
                           child: Textos(
                               text: "Forgot Password",
                               size: 19,

@@ -78,7 +78,7 @@ class _MyRegisterState extends State<MyRegister> {
     // Mostrar el diálogo de carga
     showLoadingDialog(context);
 
-    bool dat = await insertar();
+    await insertar();
 
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
@@ -410,7 +410,7 @@ class _MyRegisterState extends State<MyRegister> {
                       ),
                       SizedBox(
                           height: MediaQuery.of(context).size.height * 0.02),
-                      TextFormFields(
+                      TextFormFieldsDate(
                         hintText: 'Fecha de nacimiento dd/mm/aaaa',
                         controller: fechaNacimientoController,
                         validacion: 7,
