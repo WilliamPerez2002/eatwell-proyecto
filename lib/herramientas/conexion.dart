@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 
 class conexion_Mysql {
@@ -89,17 +90,21 @@ class conexion_Mysql {
       double peso) async {
     await initialize();
 
+    DateTime date = DateTime.now();
+    final fecha = DateFormat('dd/MM/yyyy').format(date);
+
     await connection.query(
-        'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?, ?)',
+        'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?)',
+        [nombreUsuario, email, contrasena, fechaNac, nombre, apellido]);
+
+    await connection.query(
+        'insert into IMC_DETALLE values (?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?)',
         [
           nombreUsuario,
-          email,
-          contrasena,
-          fechaNac,
-          nombre,
-          apellido,
+          fecha,
           estatura,
-          peso
+          peso,
+          (peso / ((estatura / 100) * (estatura / 100)))
         ]);
 
     connection.close();
@@ -113,7 +118,7 @@ class conexion_Mysql {
       builder: (BuildContext context) {
         return Dialog(
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [

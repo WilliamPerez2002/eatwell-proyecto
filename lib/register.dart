@@ -223,12 +223,12 @@ class _MyRegisterState extends State<MyRegister> {
     try {
       DateTime fecha = DateFormat('dd/MM/yyyy').parseStrict(value);
 
-      if (fecha.year > DateTime.now().year) {
-        return 'Ingrese una fecha menor a ${DateTime.now().year}';
+      if (fecha.year > DateTime.now().year - 3) {
+        return 'Ingrese una fecha menor a ${DateTime.now().year - 3}';
       }
 
-      if (fecha.year < 1900) {
-        return 'Ingrese una fecha mayor a 1900';
+      if (fecha.year < 1980) {
+        return 'Ingrese una fecha mayor a 1980';
       }
 
       return null;
@@ -544,7 +544,7 @@ class _MyRegisterState extends State<MyRegister> {
                                       await showDialog(
                                         context: context,
                                         builder: (_) => ErrorDialog(
-                                            text: 'Ingrese todos los datos'),
+                                            text: 'Intente nuevamente'),
                                         barrierDismissible: false,
                                       );
                                       Navigator.of(context).pop();

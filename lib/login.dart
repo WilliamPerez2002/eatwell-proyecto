@@ -215,7 +215,9 @@ class _MyLoginState extends State<MyLogin> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                            'Ingresa tu correo electrónico para poder enviarte un correo con tu contraseña momentanea'),
+                                          'Ingresa tu correo electrónico para poder enviarte tu contraseña momentanea',
+                                          style: TextStyle(fontFamily: 'lato'),
+                                        ),
                                         SizedBox(height: 30),
                                         TextFormField(),
                                       ]),
@@ -235,7 +237,7 @@ class _MyLoginState extends State<MyLogin> {
                                 ],
                                 elevation: 54.0,
                               ),
-                              barrierDismissible: false,
+                              barrierDismissible: true,
                             );
                           },
                           child: Textos(

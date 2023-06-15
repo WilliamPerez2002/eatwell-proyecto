@@ -262,13 +262,15 @@ class TextFormFieldsDate extends StatefulWidget {
 
 class _textFormFieldsDate extends State<TextFormFieldsDate> {
   bool presion = false;
+  DateTime date = DateTime.now();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: DateFormat('dd/MM/yyyy')
+          .parseStrict('${date.day}/${date.month}/${date.year - 4}'),
       firstDate: DateTime(1980),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(date.year - 2),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -312,12 +314,12 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
                   DateTime fecha =
                       DateFormat('dd/MM/yyyy').parseStrict(value.trim());
 
-                  if (fecha.year > DateTime.now().year) {
-                    return 'Ingrese una fecha menor a ${DateTime.now().year}';
+                  if (fecha.year > DateTime.now().year - 3) {
+                    return 'Ingrese una fecha menor a ${DateTime.now().year - 3}';
                   }
 
-                  if (fecha.year < 1900) {
-                    return 'Ingrese una fecha mayor a 1900';
+                  if (fecha.year < 1980) {
+                    return 'Ingrese una fecha mayor a 1980';
                   }
 
                   return null;
@@ -459,7 +461,8 @@ class ErrorDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Aceptar'),
+          child: Text('Aceptar',
+              style: TextStyle(color: Color.fromRGBO(75, 68, 82, 1.0))),
         ),
       ],
       elevation: 54.0,
@@ -481,7 +484,8 @@ class ExitoDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Aceptar'),
+          child: Text('Aceptar',
+              style: TextStyle(color: Color.fromRGBO(75, 68, 82, 1.0))),
         ),
       ],
       elevation: 54.0,
