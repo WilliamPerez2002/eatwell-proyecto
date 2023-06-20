@@ -36,6 +36,7 @@ class _MyLoginState extends State<MyLogin> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Color.fromRGBO(255, 71, 70, 1.0),
           child: Container(
             padding: EdgeInsets.all(20),
             child: Row(
@@ -75,6 +76,17 @@ class _MyLoginState extends State<MyLogin> {
     showLoadingDialog(context);
 
     String? dat = await email.sendEmail(correoController.text.trim(), usuario);
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<String?> existeUser(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    String? dat = await conexion.nombreUser(correoController.text);
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
 
@@ -175,6 +187,7 @@ class _MyLoginState extends State<MyLogin> {
                               if (_formKey.currentState!.validate()) {
                                 // Form is valid, perform additional actions here
                                 if (await fetchDataFromSQL(context)) {
+                                  dispose();
                                   Navigator.pushNamed(context, 'menu');
                                 } else {
                                   showDialog(
@@ -242,18 +255,47 @@ class _MyLoginState extends State<MyLogin> {
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () async {
-                                      String usuario = await conexion
-                                          .nombreUser(correoController.text);
+                                      String? usuario =
+                                          await existeUser(context);
 
-                                      if (await enviarCorreo(
-                                              context, usuario) !=
-                                          null) {
-                                        print("Correo enviado");
-                                      } else {}
+                                      if (usuario != null) {
+                                        String? contrasena = await enviarCorreo(
+                                            context, usuario);
 
-                                      print("$usuario usuario");
+                                        if (contrasena != null) {
+                                          print("Correo enviado");
 
-                                      Navigator.of(context).pop();
+                                          conexion.cambiarContrasena(contrasena,
+                                              correoController.text);
+                                          correoController.clear();
+
+                                          await showDialog(
+                                            context: context,
+                                            builder: (_) => ExitoDialog(
+                                                text: 'correo enviado!'),
+                                            barrierDismissible: false,
+                                          );
+                                        } else {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (_) => ErrorDialog(
+                                                text:
+                                                    'Error al enviar el correo'),
+                                            barrierDismissible: false,
+                                          );
+                                        }
+
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        print("No existe el usuario");
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => ErrorDialog(
+                                              text:
+                                                  'el correo no pertenece a ningun usuario'),
+                                          barrierDismissible: false,
+                                        );
+                                      }
                                     },
                                     child: Text(
                                       'Enviar',

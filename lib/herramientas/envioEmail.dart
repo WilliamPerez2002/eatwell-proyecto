@@ -12,21 +12,21 @@ class EmailSender {
   }
 
   Future<String?> sendEmail(String recipientEmail, String name) async {
-    final smtpServer = gmail('eatwell20023@gmail.com', 'erowwyhaziujeuww');
+    try {
+      final smtpServer = gmail('eatwell20023@gmail.com', 'erowwyhaziujeuww');
 
-    String password = generateRandomPassword();
+      String password = generateRandomPassword();
 
-    final message = Message()
-      ..from = const Address('eatwell20023@gmail.com', 'EatWell')
-      ..recipients.add(recipientEmail)
-      ..subject = "Recuperacion de la contraseña"
-      ..html = '''
+      final message = Message()
+        ..from = const Address('eatwell20023@gmail.com', 'EatWell')
+        ..recipients.add(recipientEmail)
+        ..subject = "Recuperacion de la contraseña"
+        ..html = '''
         <center><h1 style="color: #4b4452;">Hola $name,</h1>
         <p style="font-size: 18px; color: #4b4452; ">Este es un mensaje de recuperacion de contraseña</p>
         <p style="font-size: 18px;">Tu nueva contraseña es: <span style="font-weight: bold;">$password</span></p></center>
       ''';
 
-    try {
       final sendReport = await send(message, smtpServer);
       print('Correo electrónico enviado: ${sendReport.toString()}');
       return password;

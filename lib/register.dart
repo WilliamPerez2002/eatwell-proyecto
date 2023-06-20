@@ -52,6 +52,7 @@ class _MyRegisterState extends State<MyRegister> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Color.fromRGBO(255, 71, 70, 1.0),
           child: Container(
             padding: EdgeInsets.all(20),
             child: Row(
@@ -516,7 +517,7 @@ class _MyRegisterState extends State<MyRegister> {
                                           text: 'Usuario agregado con exito'),
                                       barrierDismissible: false,
                                     );
-
+                                    dispose();
                                     Navigator.pushNamed(context, 'menu');
                                   } catch (e) {
                                     print(e);

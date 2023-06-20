@@ -55,16 +55,18 @@ class conexion_Mysql {
     }
   }
 
-  Future<String> nombreUser(String email) async {
+  Future<String?> nombreUser(String email) async {
     try {
       await initialize();
 
       var results = await connection.query(
           'select NOM_USU from USUARIOS where EMA_USU = ?', [email.trim()]);
+
+      connection.close();
       return results.elementAt(0)[0];
     } catch (e) {
       print('Error querying MySQL: $e');
-      return '';
+      return null;
     }
   }
 
@@ -130,6 +132,7 @@ class conexion_Mysql {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
           child: Container(
             padding: const EdgeInsets.all(20),
             child: const Row(
@@ -162,5 +165,19 @@ class conexion_Mysql {
     hideLoadingDialog(context);
 
     return dat;
+  }
+
+  Future<bool> cambiarContrasena(String contrasena, String email) async {
+    try {
+      await initialize();
+      await connection.query(
+          'UPDATE USUARIOS set CONT_USU = ? WHERE EMA_USU = ?',
+          [contrasena, email]);
+      connection.close();
+      return true;
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return false;
+    }
   }
 }
