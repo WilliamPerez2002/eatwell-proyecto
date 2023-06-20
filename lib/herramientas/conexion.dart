@@ -4,10 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 
 class conexion_Mysql {
-  static String host = 'sql10.freesqldatabase.com',
-      user = 'sql10625378',
-      password = 'tajGtRKkPM',
-      db = 'sql10625378';
+  static String host = 'sql9.freesqldatabase.com',
+      user = 'sql9627390',
+      password = 'zlz2f7cWFN',
+      db = 'sql9627390';
   static int port = 3306;
 
   late MySqlConnection connection;
@@ -26,7 +26,7 @@ class conexion_Mysql {
       print('Connected to MySQL');
     } catch (e) {
       print('Error connecting to MySQL: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -52,6 +52,19 @@ class conexion_Mysql {
     } catch (e) {
       print('Error querying MySQL: $e');
       return false;
+    }
+  }
+
+  Future<String> nombreUser(String email) async {
+    try {
+      await initialize();
+
+      var results = await connection.query(
+          'select NOM_USU from USUARIOS where EMA_USU = ?', [email.trim()]);
+      return results.elementAt(0)[0];
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return '';
     }
   }
 

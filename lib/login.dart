@@ -2,11 +2,13 @@
 import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
 import 'herramientas/components.dart';
+import 'package:eatwell/herramientas/envioEmail.dart';
 
 class MyLogin extends StatefulWidget {
   final conexion_Mysql conexion;
+  final EmailSender email = EmailSender();
 
-  const MyLogin({super.key, required this.conexion});
+  MyLogin({super.key, required this.conexion});
 
   @override
   State<MyLogin> createState() => _MyLoginState();
@@ -14,10 +16,12 @@ class MyLogin extends StatefulWidget {
 
 class _MyLoginState extends State<MyLogin> {
   conexion_Mysql get conexion => widget.conexion;
+  EmailSender get email => widget.email;
 
 // Variables de estado para los valores ingresados en los campos de texto
   TextEditingController nombreUsuarioController = TextEditingController();
   TextEditingController contrasenaController = TextEditingController();
+  TextEditingController correoController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -60,6 +64,17 @@ class _MyLoginState extends State<MyLogin> {
 
     bool dat = await controlarSignIn();
 
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<String?> enviarCorreo(BuildContext context, String usuario) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    String? dat = await email.sendEmail(correoController.text.trim(), usuario);
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
 
@@ -208,7 +223,7 @@ class _MyLoginState extends State<MyLogin> {
                                     style: TextStyle(
                                         color:
                                             Color.fromRGBO(75, 68, 82, 1.0))),
-                                content: Container(
+                                content: SizedBox(
                                   height: 200,
                                   child: Column(
                                       crossAxisAlignment:
@@ -219,16 +234,29 @@ class _MyLoginState extends State<MyLogin> {
                                           style: TextStyle(fontFamily: 'lato'),
                                         ),
                                         SizedBox(height: 30),
-                                        TextFormField(),
+                                        TextFormField(
+                                          controller: correoController,
+                                        ),
                                       ]),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      String usuario = await conexion
+                                          .nombreUser(correoController.text);
+
+                                      if (await enviarCorreo(
+                                              context, usuario) !=
+                                          null) {
+                                        print("Correo enviado");
+                                      } else {}
+
+                                      print("$usuario usuario");
+
                                       Navigator.of(context).pop();
                                     },
                                     child: Text(
-                                      'Aceptar',
+                                      'Enviar',
                                       style: TextStyle(
                                           color:
                                               Color.fromRGBO(75, 68, 82, 1.0)),
