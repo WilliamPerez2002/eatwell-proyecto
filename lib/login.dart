@@ -2,11 +2,13 @@
 import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
 import 'herramientas/components.dart';
+import 'package:eatwell/herramientas/envioEmail.dart';
 
 class MyLogin extends StatefulWidget {
   final conexion_Mysql conexion;
+  final EmailSender email = EmailSender();
 
-  const MyLogin({super.key, required this.conexion});
+  MyLogin({super.key, required this.conexion});
 
   @override
   State<MyLogin> createState() => _MyLoginState();
@@ -14,10 +16,12 @@ class MyLogin extends StatefulWidget {
 
 class _MyLoginState extends State<MyLogin> {
   conexion_Mysql get conexion => widget.conexion;
+  EmailSender get email => widget.email;
 
 // Variables de estado para los valores ingresados en los campos de texto
   TextEditingController nombreUsuarioController = TextEditingController();
   TextEditingController contrasenaController = TextEditingController();
+  TextEditingController correoController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -32,6 +36,7 @@ class _MyLoginState extends State<MyLogin> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Color.fromRGBO(255, 71, 70, 1.0),
           child: Container(
             padding: EdgeInsets.all(20),
             child: Row(
@@ -66,12 +71,32 @@ class _MyLoginState extends State<MyLogin> {
     return dat;
   }
 
-  @override
-  void dispose() {
-    // Liberar los controladores de texto al finalizar
-    nombreUsuarioController.dispose();
-    contrasenaController.dispose();
-    super.dispose();
+  Future<String?> enviarCorreo(BuildContext context, String usuario) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    String? dat = await email.sendEmail(correoController.text.trim(), usuario);
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<String?> existeUser(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    String? dat = await conexion.nombreUser(correoController.text);
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  limpiar() {
+    nombreUsuarioController.clear();
+    contrasenaController.clear();
+    correoController.clear();
   }
 
   @override
@@ -160,6 +185,7 @@ class _MyLoginState extends State<MyLogin> {
                               if (_formKey.currentState!.validate()) {
                                 // Form is valid, perform additional actions here
                                 if (await fetchDataFromSQL(context)) {
+                                  limpiar();
                                   Navigator.pushNamed(context, 'menu');
                                 } else {
                                   showDialog(
@@ -204,34 +230,83 @@ class _MyLoginState extends State<MyLogin> {
                                   borderRadius: BorderRadius.circular(
                                       10.0), // Personaliza el radio del borde
                                 ),
+                                backgroundColor:
+                                    Color.fromRGBO(72, 125, 118, 1.0),
                                 title: Text('¿Olvidaste tu contraseña?',
-                                    style: TextStyle(
-                                        color:
-                                            Color.fromRGBO(75, 68, 82, 1.0))),
-                                content: Container(
-                                  height: 200,
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center),
+                                content: SizedBox(
+                                  height: 150,
                                   child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Ingresa tu correo electrónico para poder enviarte tu contraseña momentanea',
-                                          style: TextStyle(fontFamily: 'lato'),
+                                          style: TextStyle(
+                                            fontFamily: 'lato',
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
                                         SizedBox(height: 30),
-                                        TextFormField(),
+                                        TextFormField(
+                                          controller: correoController,
+                                          style: TextStyle(
+                                            fontFamily: 'lato',
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ]),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
+                                    onPressed: () async {
+                                      String? usuario =
+                                          await existeUser(context);
+
+                                      if (usuario != null) {
+                                        String? contrasena = await enviarCorreo(
+                                            context, usuario);
+
+                                        if (contrasena != null) {
+                                          print("Correo enviado");
+
+                                          conexion.cambiarContrasena(contrasena,
+                                              correoController.text);
+                                          correoController.clear();
+
+                                          await showDialog(
+                                            context: context,
+                                            builder: (_) => ExitoDialog(
+                                                text: 'correo enviado!'),
+                                            barrierDismissible: false,
+                                          );
+                                        } else {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (_) => ErrorDialog(
+                                                text:
+                                                    'Error al enviar el correo'),
+                                            barrierDismissible: false,
+                                          );
+                                        }
+
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        print("No existe el usuario");
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) => ErrorDialog(
+                                              text:
+                                                  'el correo no pertenece a ningun usuario'),
+                                          barrierDismissible: false,
+                                        );
+                                      }
                                     },
                                     child: Text(
-                                      'Aceptar',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(75, 68, 82, 1.0)),
+                                      'Enviar',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ],

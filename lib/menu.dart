@@ -12,13 +12,13 @@ class _menuState extends State<menu> {
   Widget build(BuildContext context) {
     return Container(
         child: Scaffold(
-            backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
+            backgroundColor: Colors.white,
             appBar: AppBar(
               title: const Text('Menu'),
-              backgroundColor: Colors.white,
+              backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
             ),
             body: const Center(
-              child: Text('Hello Worlsd'),
+              child: Text(''),
             )));
   }
 }
