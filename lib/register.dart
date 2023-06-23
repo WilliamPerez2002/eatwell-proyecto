@@ -290,18 +290,15 @@ class _MyRegisterState extends State<MyRegister> {
     return null;
   }
 
-  @override
-  void dispose() {
-    // Liberar los controladores de texto al finalizar
-    nombreUsuarioController.dispose();
-    emailController.dispose();
-    contrasenaController.dispose();
-    fechaNacimientoController.dispose();
-    nombreController.dispose();
-    apellidoController.dispose();
-    estaturaController.dispose();
-    pesoController.dispose();
-    super.dispose();
+  limpiar() {
+    nombreController.clear();
+    apellidoController.clear();
+    estaturaController.clear();
+    pesoController.clear();
+    nombreUsuarioController.clear();
+    emailController.clear();
+    fechaNacimientoController.clear();
+    contrasenaController.clear();
   }
 
   @override
@@ -517,7 +514,7 @@ class _MyRegisterState extends State<MyRegister> {
                                           text: 'Usuario agregado con exito'),
                                       barrierDismissible: false,
                                     );
-                                    dispose();
+                                    limpiar();
                                     Navigator.pushNamed(context, 'menu');
                                   } catch (e) {
                                     print(e);

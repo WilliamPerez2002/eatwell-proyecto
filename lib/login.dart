@@ -93,12 +93,10 @@ class _MyLoginState extends State<MyLogin> {
     return dat;
   }
 
-  @override
-  void dispose() {
-    // Liberar los controladores de texto al finalizar
-    nombreUsuarioController.dispose();
-    contrasenaController.dispose();
-    super.dispose();
+  limpiar() {
+    nombreUsuarioController.clear();
+    contrasenaController.clear();
+    correoController.clear();
   }
 
   @override
@@ -187,7 +185,7 @@ class _MyLoginState extends State<MyLogin> {
                               if (_formKey.currentState!.validate()) {
                                 // Form is valid, perform additional actions here
                                 if (await fetchDataFromSQL(context)) {
-                                  dispose();
+                                  limpiar();
                                   Navigator.pushNamed(context, 'menu');
                                 } else {
                                   showDialog(
@@ -232,23 +230,32 @@ class _MyLoginState extends State<MyLogin> {
                                   borderRadius: BorderRadius.circular(
                                       10.0), // Personaliza el radio del borde
                                 ),
+                                backgroundColor:
+                                    Color.fromRGBO(72, 125, 118, 1.0),
                                 title: Text('¿Olvidaste tu contraseña?',
-                                    style: TextStyle(
-                                        color:
-                                            Color.fromRGBO(75, 68, 82, 1.0))),
+                                    style: TextStyle(color: Colors.white),
+                                    textAlign: TextAlign.center),
                                 content: SizedBox(
-                                  height: 200,
+                                  height: 150,
                                   child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Ingresa tu correo electrónico para poder enviarte tu contraseña momentanea',
-                                          style: TextStyle(fontFamily: 'lato'),
+                                          style: TextStyle(
+                                            fontFamily: 'lato',
+                                            color: Colors.white,
+                                          ),
+                                          textAlign: TextAlign.center,
                                         ),
                                         SizedBox(height: 30),
                                         TextFormField(
                                           controller: correoController,
+                                          style: TextStyle(
+                                            fontFamily: 'lato',
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ]),
                                 ),
@@ -299,9 +306,7 @@ class _MyLoginState extends State<MyLogin> {
                                     },
                                     child: Text(
                                       'Enviar',
-                                      style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(75, 68, 82, 1.0)),
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ],

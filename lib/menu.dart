@@ -18,7 +18,7 @@ class _menuState extends State<menu> {
               backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
             ),
             body: const Center(
-              child: Text('Hello Worlsd'),
+              child: Text(''),
             )));
   }
 }
