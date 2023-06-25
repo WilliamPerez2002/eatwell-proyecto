@@ -1,8 +1,15 @@
 // ignore: file_names
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, duplicate_ignore, avoid_unnecessary_containers, camel_case_types
 
+import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
+
+import '../FoodPage.dart';
+import '../IMCPage.dart';
+import '../ProfilePage.dart';
+import '../homePage.dart';
 
 class WelcomeComponent extends StatelessWidget {
   final String title;
@@ -120,7 +127,7 @@ class TextFormFields extends StatelessWidget {
                   return 'muy corto';
                 }
 
-                if (value.trim().length > 20) {
+                if (value.trim().length > 10) {
                   return 'muy largo';
                 }
               }
@@ -190,7 +197,7 @@ class TextFormFields extends StatelessWidget {
                   return 'muy corto';
                 }
 
-                if (value.trim().length > 20) {
+                if (value.trim().length > 10) {
                   return 'muy largo';
                 }
               }
@@ -219,8 +226,7 @@ class TextFormFields extends StatelessWidget {
                 fillColor: Colors.white,
                 hoverColor: Colors.white,
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Color.fromRGBO(146, 181, 95, 1.0), width: 2),
+                  borderSide: BorderSide(color: Colores.verde, width: 2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 border: OutlineInputBorder(
@@ -275,8 +281,8 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: Color.fromRGBO(
-                  75, 68, 82, 1.0), // Cambia el color principal del DatePicker
+              primary:
+                  Colores.morado, // Cambia el color principal del DatePicker
               onPrimary:
                   Colors.white, // Cambia el color del texto del DatePicker
             ),
@@ -289,8 +295,8 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
     if (picked != null) {
       final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
       setState(() {
-        widget.controller.text =
-            formattedDate; // Actualiza el valor del TextFormField
+        widget.controller.text = formattedDate;
+        print(formattedDate); // Actualiza el valor del TextFormField
       });
     }
   }
@@ -338,15 +344,12 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
                   context); // Abre el DatePicker cuando se toca el TextFormField
             },
             onChanged: (value) {
-              print(" HOAAAAAAAAAAAAA");
               presion = false;
             },
             decoration: InputDecoration(
                 hintText: widget.hintText,
                 suffixIcon: Icon(Icons.calendar_today_outlined,
-                    color: presion
-                        ? Color.fromRGBO(146, 181, 95, 1.0)
-                        : Colors.grey),
+                    color: presion ? Colores.verde : Colors.grey),
 
                 // ignore: prefer_const_constructors
                 hintStyle: TextStyle(
@@ -359,8 +362,7 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
                 fillColor: Colors.white,
                 hoverColor: Colors.white,
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Color.fromRGBO(146, 181, 95, 1.0), width: 2),
+                  borderSide: BorderSide(color: Colores.verde, width: 2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 border: OutlineInputBorder(
@@ -442,6 +444,7 @@ class Textos extends StatelessWidget {
         decoration: decoration,
         letterSpacing: 1,
         height: 1,
+        overflow: TextOverflow.visible,
       ),
     );
   }
@@ -461,11 +464,59 @@ class ErrorDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Aceptar',
-              style: TextStyle(color: Color.fromRGBO(75, 68, 82, 1.0))),
+          child: Text('Aceptar', style: TextStyle(color: Colores.morado)),
         ),
       ],
       elevation: 54.0,
+    );
+  }
+}
+
+class Cards extends StatefulWidget {
+  final List<Widget> children;
+  final double width;
+  final double height;
+  final Color color;
+  final double elevation;
+
+  const Cards(
+      {Key? key,
+      required this.children,
+      required this.width,
+      required this.height,
+      required this.color,
+      required this.elevation})
+      : super(key: key);
+
+  @override
+  State<Cards> createState() => _CardState();
+}
+
+class _CardState extends State<Cards> {
+  get width => widget.width;
+  get height => widget.height;
+  get color => widget.color;
+  get elevation => widget.elevation;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: color,
+        elevation: elevation,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
+          ),
+        ),
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Column(
+            children: widget.children,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -484,11 +535,104 @@ class ExitoDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Aceptar',
-              style: TextStyle(color: Color.fromRGBO(75, 68, 82, 1.0))),
+          child: Text('Aceptar', style: TextStyle(color: Colores.morado)),
         ),
       ],
       elevation: 54.0,
     );
   }
+}
+
+class Nav extends StatefulWidget {
+  final conexion_Mysql? conexion;
+  final Map<String, dynamic>? datos;
+  const Nav({super.key, required this.conexion, required this.datos});
+
+  @override
+  State<Nav> createState() => _NavState();
+}
+
+class _NavState extends State<Nav> {
+  conexion_Mysql? get conexion => widget.conexion;
+  Map<String, dynamic>? get datos => widget.datos;
+  int _selectedIndex = 0;
+  late Color color = Colores.rosa;
+
+  late List<Widget> _pages = [];
+
+  void changePage(int index) {
+    setState(() {
+      _selectedIndex = index;
+
+      if (index == 0) {
+        color = Colores.rosa;
+      } else if (index == 1) {
+        color = Colores.celeste;
+      } else if (index == 2) {
+        color = Colores.verde;
+      } else if (index == 3) {
+        color = Colores.morado;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomePage(conexion: widget.conexion, data: datos),
+      IMCPage(conexion: widget.conexion, data: datos),
+      FoodPage(),
+      ProfilePage(conexion: widget.conexion, data: datos),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          child: GNav(
+              backgroundColor: Colors.white,
+              padding: EdgeInsets.all(7),
+              color: color,
+              activeColor: Colors.white,
+              tabBackgroundColor: color,
+              curve: Curves.easeInCirc,
+              onTabChange: changePage,
+              gap: 8,
+              tabs: [
+                GButton(
+                  icon: Icons.home,
+                  text: 'Home',
+                ),
+                GButton(
+                  icon: Icons.assessment_rounded,
+                  text: 'IMC',
+                ),
+                GButton(
+                  icon: Icons.dining,
+                  text: 'food',
+                ),
+                GButton(
+                  icon: Icons.person,
+                  text: 'Profile',
+                ),
+              ]),
+        ),
+      ),
+    );
+  }
+}
+
+class Colores {
+  static Color verde = Color.fromRGBO(146, 181, 95, 1.0);
+  static Color morado = Color.fromRGBO(75, 68, 82, 1.0);
+  static Color rosa = Color.fromRGBO(255, 71, 70, 1.0);
+  static Color celeste = Color.fromRGBO(72, 125, 118, 1.0);
+  static Color amarillo = Color.fromRGBO(232, 218, 94, 1.0);
 }

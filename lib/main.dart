@@ -40,7 +40,7 @@ void main() async {
       },
       'menu': (context) {
         logger.i('Navegando a la pantalla de menú...');
-        return const menu();
+        return MyMenu(conexion: conexion);
       }
     },
   ));

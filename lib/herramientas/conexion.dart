@@ -70,6 +70,64 @@ class conexion_Mysql {
     }
   }
 
+  Future<String?> columnaUser(String user, String columna) async {
+    try {
+      await initialize();
+
+      var usuario = await connection.query(
+          'select $columna from USUARIOS where ID_USU = ?', [user.trim()]);
+
+      connection.close();
+      print(usuario.elementAt(0)[0]);
+      return usuario.elementAt(0)[0].toString();
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> datos(String user) async {
+    String? nombre = await columnaUser(user, 'NOM_USU');
+    String? apellido = await columnaUser(user, 'APE_USU');
+    String? contrasena = await columnaUser(user, 'CONT_USU');
+    String? fechaNac = await columnaUser(user, 'FEC_NAC_USU');
+    String? email = await columnaUser(user, 'EMA_USU');
+
+    try {
+      await initialize();
+
+      var results = await connection.query(
+          "SELECT FEC_REG, IMC FROM IMC_DETALLE WHERE ID_USU = ? ORDER BY FEC_REG DESC LIMIT 1;",
+          [user.trim()]);
+
+      connection.close();
+
+      DateFormat fecha = DateFormat('yyyy-MM-dd');
+      String formattedDate = fecha.format(results.elementAt(0)[0]);
+      String imc = results.elementAt(0)[1].toString();
+      String nacimiento = fecha.format(DateTime.parse(fechaNac!));
+
+      Map<String, dynamic>? datosObtenidos = {
+        "nombre": nombre,
+        "apellido": apellido,
+        "fecha_nacimiento": nacimiento,
+        "fecha": formattedDate,
+        "imc": imc,
+        "id": user,
+        "email": email,
+        "contrasena": contrasena
+      };
+
+      print(formattedDate);
+      print(imc);
+
+      return datosObtenidos;
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return null;
+    }
+  }
+
   Future<bool> existe(String valor, String columna) async {
     try {
       await initialize();
@@ -106,21 +164,24 @@ class conexion_Mysql {
     await initialize();
 
     DateTime date = DateTime.now();
-    final fecha = DateFormat('dd/MM/yyyy').format(date);
+    final fecha = DateFormat('yyyy-MM-dd').format(date);
 
-    await connection.query(
-        'insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?)',
-        [nombreUsuario, email, contrasena, fechaNac, nombre, apellido]);
+    DateTime fechaNacimiento = DateFormat('dd/MM/yyyy').parse(fechaNac);
+    String fechaFormateada = DateFormat('yyyy-MM-dd').format(fechaNacimiento);
+    print(fechaFormateada);
 
+    //ERROR
     await connection.query(
-        'insert into IMC_DETALLE values (?, STR_TO_DATE(?,"%d/%m/%Y"), ?, ?, ?)',
-        [
-          nombreUsuario,
-          fecha,
-          estatura,
-          peso,
-          (peso / ((estatura / 100) * (estatura / 100)))
-        ]);
+        "insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?, '%Y-%m-%d') , ?, ?)",
+        [nombreUsuario, email, contrasena, fechaFormateada, nombre, apellido]);
+
+    await connection.query('insert into IMC_DETALLE values (?, ?, ?, ?, ?)', [
+      nombreUsuario,
+      fecha,
+      estatura,
+      peso,
+      (peso / ((estatura / 100) * (estatura / 100)))
+    ]);
 
     connection.close();
     return true;
@@ -174,6 +235,34 @@ class conexion_Mysql {
           'UPDATE USUARIOS set CONT_USU = ? WHERE EMA_USU = ?',
           [contrasena, email]);
       connection.close();
+      return true;
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return false;
+    }
+  }
+
+  Future<bool> actualizarContrasena(
+      BuildContext context, String nueva, String user) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await actCont(nueva, user);
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<bool> actCont(String nueva, String user) async {
+    try {
+      await initialize();
+
+      await connection.query(
+          'UPDATE USUARIOS set CONT_USU = ? WHERE ID_USU = ?', [nueva, user]);
+
+      connection.close();
+
       return true;
     } catch (e) {
       print('Error querying MySQL: $e');

@@ -36,14 +36,14 @@ class _MyLoginState extends State<MyLogin> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Color.fromRGBO(255, 71, 70, 1.0),
+          backgroundColor: Colores.rosa,
           child: Container(
             padding: EdgeInsets.all(20),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircularProgressIndicator(
-                  color: Color.fromRGBO(75, 68, 82, 1.0),
+                  color: Colores.morado,
                 ),
                 SizedBox(width: 20),
                 Text('Cargando...'),
@@ -87,6 +87,18 @@ class _MyLoginState extends State<MyLogin> {
     showLoadingDialog(context);
 
     String? dat = await conexion.nombreUser(correoController.text);
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<Map<String, dynamic>?> nombreApellido(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    Map<String, dynamic>? dat =
+        await conexion.datos(nombreUsuarioController.text.trim());
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
 
@@ -155,7 +167,7 @@ class _MyLoginState extends State<MyLogin> {
                       Textos(
                         text: "Sign In",
                         size: 30,
-                        color: Color.fromRGBO(75, 68, 82, 1.0),
+                        color: Colores.morado,
                         bold: true,
                         decoration: TextDecoration.none,
                         height: 0,
@@ -176,7 +188,7 @@ class _MyLoginState extends State<MyLogin> {
                         ),
                         child: CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color.fromRGBO(75, 68, 82, 1.0),
+                          backgroundColor: Colores.morado,
                           child: IconButton(
                             icon: Icon(Icons.chevron_right_rounded, size: 30),
                             color: Colors.black,
@@ -185,8 +197,12 @@ class _MyLoginState extends State<MyLogin> {
                               if (_formKey.currentState!.validate()) {
                                 // Form is valid, perform additional actions here
                                 if (await fetchDataFromSQL(context)) {
+                                  Map<String, dynamic>? datos =
+                                      (await nombreApellido(context));
+
+                                  Navigator.pushNamed(context, 'menu',
+                                      arguments: datos);
                                   limpiar();
-                                  Navigator.pushNamed(context, 'menu');
                                 } else {
                                   showDialog(
                                     context: context,
@@ -216,7 +232,7 @@ class _MyLoginState extends State<MyLogin> {
                           child: Textos(
                               text: "Sign Up",
                               size: 19,
-                              color: Color.fromRGBO(75, 68, 82, 1.0),
+                              color: Colores.morado,
                               bold: true,
                               decoration: TextDecoration.underline,
                               height: 0,
@@ -230,8 +246,7 @@ class _MyLoginState extends State<MyLogin> {
                                   borderRadius: BorderRadius.circular(
                                       10.0), // Personaliza el radio del borde
                                 ),
-                                backgroundColor:
-                                    Color.fromRGBO(72, 125, 118, 1.0),
+                                backgroundColor: Colores.celeste,
                                 title: Text('¿Olvidaste tu contraseña?',
                                     style: TextStyle(color: Colors.white),
                                     textAlign: TextAlign.center),
@@ -318,7 +333,7 @@ class _MyLoginState extends State<MyLogin> {
                           child: Textos(
                               text: "Forgot Password",
                               size: 19,
-                              color: Color.fromRGBO(75, 68, 82, 1.0),
+                              color: Colores.morado,
                               bold: true,
                               decoration: TextDecoration.underline,
                               height: 0,

@@ -1,24 +1,40 @@
+import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
+import 'herramientas/components.dart';
 
-class menu extends StatefulWidget {
-  const menu({super.key});
+class MyMenu extends StatefulWidget {
+  final conexion_Mysql conexion;
+
+  MyMenu({Key? key, required this.conexion}) : super(key: key);
 
   @override
-  State<menu> createState() => _menuState();
+  State<MyMenu> createState() => _MyMenuState();
 }
 
-class _menuState extends State<menu> {
+class _MyMenuState extends State<MyMenu> {
+  conexion_Mysql get conexion => widget.conexion;
+  var data;
+  String? nombreUser;
+  String? id;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              title: const Text('Menu'),
-              backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
-            ),
-            body: const Center(
-              child: Text(''),
-            )));
+    // Obtener los argumentos enviados desde la pantalla anterior
+    data = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    id = data!['id'];
+    nombreUser = data!['nombre'];
+
+    return WillPopScope(
+      onWillPop: () async {
+        // Evitar el retroceso automático
+        print(id! + nombreUser!);
+        conexion.datos(id!);
+        return false;
+      },
+      child: Nav(
+        conexion: conexion,
+        datos: data,
+      ),
+    );
   }
 }
