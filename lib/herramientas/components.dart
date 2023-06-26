@@ -16,13 +16,15 @@ class WelcomeComponent extends StatelessWidget {
   final double topMargin;
   final double leftMargin;
   final Alignment alignment;
+  final Color color;
 
   const WelcomeComponent(
       {Key? key,
       required this.title,
       required this.topMargin,
       required this.leftMargin,
-      required this.alignment})
+      required this.alignment,
+      required this.color})
       : super(key: key);
 
   @override
@@ -36,7 +38,7 @@ class WelcomeComponent extends StatelessWidget {
         child: Textos(
             text: title,
             size: 45,
-            color: Colors.white,
+            color: color,
             bold: true,
             decoration: TextDecoration.none,
             height: 1,
@@ -442,8 +444,8 @@ class Textos extends StatelessWidget {
         color: color,
         fontWeight: (bold ? FontWeight.bold : FontWeight.normal),
         decoration: decoration,
-        letterSpacing: 1,
-        height: 1,
+        letterSpacing: letterSpacing,
+        height: height,
         overflow: TextOverflow.visible,
       ),
     );

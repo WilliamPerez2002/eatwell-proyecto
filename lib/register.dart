@@ -324,11 +324,11 @@ class _MyRegisterState extends State<MyRegister> {
                   height: 0.20,
                   children: const [
                     WelcomeComponent(
-                      title: 'Nueva \nCuenta',
-                      topMargin: 0.01,
-                      leftMargin: 13,
-                      alignment: Alignment.centerLeft,
-                    ),
+                        title: 'Nueva \nCuenta',
+                        topMargin: 0.01,
+                        leftMargin: 13,
+                        alignment: Alignment.centerLeft,
+                        color: Colors.white),
                     ImageComponent(
                       imagePath: 'assets/dieta.png',
                       topMargin: 0.01,

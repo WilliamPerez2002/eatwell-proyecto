@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -163,9 +165,6 @@ class conexion_Mysql {
       double peso) async {
     await initialize();
 
-    DateTime date = DateTime.now();
-    final fecha = DateFormat('yyyy-MM-dd').format(date);
-
     DateTime fechaNacimiento = DateFormat('dd/MM/yyyy').parse(fechaNac);
     String fechaFormateada = DateFormat('yyyy-MM-dd').format(fechaNacimiento);
     print(fechaFormateada);
@@ -175,16 +174,32 @@ class conexion_Mysql {
         "insert into USUARIOS values (?, ?, ?, STR_TO_DATE(?, '%Y-%m-%d') , ?, ?)",
         [nombreUsuario, email, contrasena, fechaFormateada, nombre, apellido]);
 
-    await connection.query('insert into IMC_DETALLE values (?, ?, ?, ?, ?)', [
-      nombreUsuario,
-      fecha,
-      estatura,
-      peso,
-      (peso / ((estatura / 100) * (estatura / 100)))
-    ]);
+    var respond = await ingresoIMC(nombreUsuario, estatura, peso);
 
     connection.close();
-    return true;
+    return true && respond;
+  }
+
+  Future<bool> ingresoIMC(
+      String nombreUsuario, int estatura, double peso) async {
+    try {
+      await initialize();
+      DateTime date = DateTime.now();
+      final fecha = DateFormat('yyyy-MM-dd').format(date);
+
+      await connection.query('insert into IMC_DETALLE values (?, ?, ?, ?, ?)', [
+        nombreUsuario,
+        fecha,
+        estatura,
+        peso,
+        (peso / ((estatura / 100) * (estatura / 100)))
+      ]);
+
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 
   void showLoadingDialog(BuildContext context) {
@@ -268,5 +283,17 @@ class conexion_Mysql {
       print('Error querying MySQL: $e');
       return false;
     }
+  }
+
+  Future<bool> ingresarNuevoIMC(BuildContext context, String nombreUsuario,
+      int estatura, double peso) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await ingresoIMC(nombreUsuario, estatura, peso);
+
+    hideLoadingDialog(context);
+
+    return dat;
   }
 }

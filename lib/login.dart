@@ -132,6 +132,7 @@ class _MyLoginState extends State<MyLogin> {
                   topMargin: 0.175,
                   leftMargin: 0.7,
                   alignment: Alignment.center,
+                  color: Colors.white,
                 ),
                 ImageComponent(
                   imagePath: 'assets/vegetariano.png',

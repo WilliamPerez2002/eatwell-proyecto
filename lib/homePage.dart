@@ -18,6 +18,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   conexion_Mysql? get conexion => widget.conexion;
   Map<String, dynamic>? get data => widget.data;
+  Map<String, dynamic>? newData;
+
+  void actualizarDatos(Map<String, dynamic> nuevosDatos) {
+    setState(() {
+      newData = nuevosDatos;
+    });
+  }
 
   String elegirHora() {
     var now = DateTime.now();
@@ -84,11 +91,11 @@ class _HomePageState extends State<HomePage> {
                     heightSize: 0.18,
                   ),
                   WelcomeComponent(
-                    title: '${elegirHora()}, ${data!["nombre"]}!',
-                    topMargin: 0.15,
-                    leftMargin: 29.62,
-                    alignment: Alignment.centerLeft,
-                  ),
+                      title: '${elegirHora()}, ${data!["nombre"]}!',
+                      topMargin: 0.15,
+                      leftMargin: 29.62,
+                      alignment: Alignment.centerLeft,
+                      color: Colors.white),
                   ImageComponent(
                     imagePath: elegirImagen(),
                     topMargin: 0.33,
@@ -112,7 +119,8 @@ class _HomePageState extends State<HomePage> {
                       title: "IMC",
                       topMargin: 0.03,
                       leftMargin: 10,
-                      alignment: Alignment.center),
+                      alignment: Alignment.center,
+                      color: Colors.white),
                   ImageComponent(
                     imagePath: 'assets/vegetales.png',
                     topMargin: 0.015,
@@ -133,16 +141,16 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           bold: false,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5),
                       SizedBox(height: 15),
                       Textos(
                           text: data!['imc'],
                           size: 84,
-                          color: Color.fromRGBO(146, 181, 95, 1.0),
+                          color: Colores.verde,
                           bold: true,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5),
                       SizedBox(height: 20),
                       Textos(
@@ -151,12 +159,12 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           bold: true,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5)
                     ],
                     width: 300,
                     height: 190,
-                    color: Color.fromRGBO(204, 56, 56, 1.0),
+                    color: Colores.rosa,
                     elevation: 10,
                   )
 
@@ -175,7 +183,8 @@ class _HomePageState extends State<HomePage> {
                       title: "IMC",
                       topMargin: 0.03,
                       leftMargin: 10,
-                      alignment: Alignment.center),
+                      alignment: Alignment.center,
+                      color: Colors.white),
                   ImageComponent(
                     imagePath: 'assets/vegetales.png',
                     topMargin: 0.015,
@@ -196,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           bold: false,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5),
                       SizedBox(height: 15),
                       Textos(
@@ -205,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                           color: Color.fromRGBO(146, 181, 95, 1.0),
                           bold: true,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5),
                       SizedBox(height: 20),
                       Textos(
@@ -214,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           bold: true,
                           decoration: TextDecoration.none,
-                          height: 22,
+                          height: 1,
                           letterSpacing: 0.5)
                     ],
                     width: 300,
