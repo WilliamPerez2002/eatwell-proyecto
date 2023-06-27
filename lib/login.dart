@@ -30,8 +30,8 @@ class _MyLoginState extends State<MyLogin> {
         nombreUsuarioController.text.trim(), contrasenaController.text.trim());
   }
 
-  void showLoadingDialog(BuildContext context) {
-    showDialog(
+  Future<void> showLoadingDialog(BuildContext context) async {
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -93,7 +93,7 @@ class _MyLoginState extends State<MyLogin> {
     return dat;
   }
 
-  Future<Map<String, dynamic>?> nombreApellido(BuildContext context) async {
+  Future<Map<String, dynamic>?> datosC(BuildContext context) async {
     // Mostrar el diálogo de carga
     showLoadingDialog(context);
 
@@ -113,234 +113,253 @@ class _MyLoginState extends State<MyLogin> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/login.png'),
-          fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/login.png'),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
-          child: Form(
-            key: _formKey, // Assign the global key to the form
-            child: Column(
-              children: [
-                WelcomeComponent(
-                  title: 'Bienvenido!',
-                  topMargin: 0.175,
-                  leftMargin: 0.7,
-                  alignment: Alignment.center,
-                  color: Colors.white,
-                ),
-                ImageComponent(
-                  imagePath: 'assets/vegetariano.png',
-                  topMargin: 0.0003,
-                  leftMargin: 19,
-                  rightMargin: 45,
-                  widthSize: 0.50,
-                  heightSize: 0.35,
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.0001),
-                TextFormFields(
-                  hintText: 'Usuario',
-                  controller: nombreUsuarioController,
-                  validacion: 0,
-                  errorColor: Colors.black,
-                  obscureText: false,
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                TextFormFields(
-                  hintText: 'Contraseña',
-                  controller: contrasenaController,
-                  validacion: 0,
-                  errorColor: Colors.black,
-                  obscureText: true,
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-                filaComDoble(
-                    marginHorizontal: 55,
-                    marginVertical: 0,
-                    width: 1,
-                    height: 0.1,
-                    children: [
-                      Textos(
-                        text: "Sign In",
-                        size: 30,
-                        color: Colores.morado,
-                        bold: true,
-                        decoration: TextDecoration.none,
-                        height: 0,
-                        letterSpacing: 0,
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(
-                                  0, 5), // desplazamiento de la sombra en X e Y
-                            ),
-                          ],
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SingleChildScrollView(
+            child: Form(
+              key: _formKey, // Assign the global key to the form
+              child: Column(
+                children: [
+                  WelcomeComponent(
+                    title: 'Bienvenido!',
+                    topMargin: 0.175,
+                    leftMargin: 0.7,
+                    alignment: Alignment.center,
+                    color: Colors.white,
+                  ),
+                  ImageComponent(
+                    imagePath: 'assets/vegetariano.png',
+                    topMargin: 0.0003,
+                    leftMargin: 19,
+                    rightMargin: 45,
+                    widthSize: 0.50,
+                    heightSize: 0.35,
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.0001),
+                  TextFormFields(
+                    hintText: 'Usuario',
+                    controller: nombreUsuarioController,
+                    validacion: 0,
+                    errorColor: Colors.black,
+                    obscureText: false,
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  TextFormFields(
+                    hintText: 'Contraseña',
+                    controller: contrasenaController,
+                    validacion: 0,
+                    errorColor: Colors.black,
+                    obscureText: true,
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                  filaComDoble(
+                      marginHorizontal: 55,
+                      marginVertical: 0,
+                      width: 1,
+                      height: 0.1,
+                      children: [
+                        Textos(
+                          text: "Sign In",
+                          size: 30,
+                          color: Colores.morado,
+                          bold: true,
+                          decoration: TextDecoration.none,
+                          height: 0,
+                          letterSpacing: 0,
                         ),
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colores.morado,
-                          child: IconButton(
-                            icon: Icon(Icons.chevron_right_rounded, size: 30),
-                            color: Colors.black,
-                            onPressed: () async {
-                              // Validate the form when the button is pressed //formKey.currentState!.validate()
-                              if (_formKey.currentState!.validate()) {
-                                // Form is valid, perform additional actions here
-                                if (await fetchDataFromSQL(context)) {
-                                  Map<String, dynamic>? datos =
-                                      (await nombreApellido(context));
-
-                                  Navigator.pushNamed(context, 'menu',
-                                      arguments: datos);
-                                  limpiar();
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => ErrorDialog(
-                                        text:
-                                            'Usuario o contraseña incorrectos'),
-                                    barrierDismissible: false,
-                                  );
-                                }
-                              }
-                            },
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0,
+                                    5), // desplazamiento de la sombra en X e Y
+                              ),
+                            ],
                           ),
-                        ),
-                      )
-                    ]),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                filaComDoble(
-                    marginHorizontal: 55,
-                    marginVertical: 0,
-                    width: 1,
-                    height: 0.05,
-                    children: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, 'register');
-                          },
-                          child: Textos(
-                              text: "Sign Up",
-                              size: 19,
-                              color: Colores.morado,
-                              bold: true,
-                              decoration: TextDecoration.underline,
-                              height: 0,
-                              letterSpacing: 0)),
-                      TextButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      10.0), // Personaliza el radio del borde
-                                ),
-                                backgroundColor: Colores.celeste,
-                                title: Text('¿Olvidaste tu contraseña?',
-                                    style: TextStyle(color: Colors.white),
-                                    textAlign: TextAlign.center),
-                                content: SizedBox(
-                                  height: 150,
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Ingresa tu correo electrónico para poder enviarte tu contraseña momentanea',
-                                          style: TextStyle(
-                                            fontFamily: 'lato',
-                                            color: Colors.white,
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colores.morado,
+                            child: IconButton(
+                              icon: Icon(Icons.chevron_right_rounded, size: 30),
+                              color: Colors.black,
+                              onPressed: () async {
+                                // Validate the form when the button is pressed //formKey.currentState!.validate()
+                                if (_formKey.currentState!.validate()) {
+                                  // Form is valid, perform additional actions here
+                                  try {
+                                    if (await fetchDataFromSQL(context)) {
+                                      Map<String, dynamic>? datos =
+                                          (await datosC(context));
+
+                                      Navigator.pushNamed(context, 'menu',
+                                          arguments: datos);
+                                      limpiar();
+                                    } else {
+                                      await showDialog(
+                                        context: context,
+                                        builder: (_) => ErrorDialog(
+                                            text:
+                                                'Usuario o contraseña incorrectos'),
+                                        barrierDismissible: false,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    await showDialog(
+                                      context: context,
+                                      builder: (_) => ErrorDialog(
+                                          text:
+                                              'Problemas con el servidor, por favor, reinicie la aplicación'),
+                                      barrierDismissible: false,
+                                    );
+
+                                    print(e);
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        )
+                      ]),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  filaComDoble(
+                      marginHorizontal: 55,
+                      marginVertical: 0,
+                      width: 1,
+                      height: 0.05,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, 'register');
+                            },
+                            child: Textos(
+                                text: "Sign Up",
+                                size: 19,
+                                color: Colores.morado,
+                                bold: true,
+                                decoration: TextDecoration.underline,
+                                height: 0,
+                                letterSpacing: 0)),
+                        TextButton(
+                            onPressed: () async {
+                              await showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10.0), // Personaliza el radio del borde
+                                  ),
+                                  backgroundColor: Colores.celeste,
+                                  title: Text('¿Olvidaste tu contraseña?',
+                                      style: TextStyle(color: Colors.white),
+                                      textAlign: TextAlign.center),
+                                  content: SizedBox(
+                                    height: 150,
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Ingresa tu correo electrónico para poder enviarte tu contraseña momentanea',
+                                            style: TextStyle(
+                                              fontFamily: 'lato',
+                                              color: Colors.white,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(height: 30),
-                                        TextFormField(
-                                          controller: correoController,
-                                          style: TextStyle(
-                                            fontFamily: 'lato',
-                                            color: Colors.white,
+                                          SizedBox(height: 30),
+                                          TextFormField(
+                                            controller: correoController,
+                                            style: TextStyle(
+                                              fontFamily: 'lato',
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                      ]),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () async {
-                                      String? usuario =
-                                          await existeUser(context);
+                                        ]),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () async {
+                                        String? usuario =
+                                            await existeUser(context);
 
-                                      if (usuario != null) {
-                                        String? contrasena = await enviarCorreo(
-                                            context, usuario);
+                                        if (usuario != null) {
+                                          String? contrasena =
+                                              await enviarCorreo(
+                                                  context, usuario);
 
-                                        if (contrasena != null) {
-                                          print("Correo enviado");
+                                          if (contrasena != null) {
+                                            print("Correo enviado");
 
-                                          conexion.cambiarContrasena(contrasena,
-                                              correoController.text);
-                                          correoController.clear();
+                                            conexion.cambiarContrasena(
+                                                contrasena,
+                                                correoController.text);
+                                            correoController.clear();
 
-                                          await showDialog(
-                                            context: context,
-                                            builder: (_) => ExitoDialog(
-                                                text: 'correo enviado!'),
-                                            barrierDismissible: false,
-                                          );
+                                            await showDialog(
+                                              context: context,
+                                              builder: (_) => ExitoDialog(
+                                                  text: 'correo enviado!'),
+                                              barrierDismissible: false,
+                                            );
+                                          } else {
+                                            await showDialog(
+                                              context: context,
+                                              builder: (_) => ErrorDialog(
+                                                  text:
+                                                      'Error al enviar el correo'),
+                                              barrierDismissible: false,
+                                            );
+                                          }
+
+                                          Navigator.of(context).pop();
                                         } else {
+                                          print("No existe el usuario");
                                           await showDialog(
                                             context: context,
                                             builder: (_) => ErrorDialog(
                                                 text:
-                                                    'Error al enviar el correo'),
+                                                    'el correo no pertenece a ningun usuario'),
                                             barrierDismissible: false,
                                           );
                                         }
-
-                                        Navigator.of(context).pop();
-                                      } else {
-                                        print("No existe el usuario");
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) => ErrorDialog(
-                                              text:
-                                                  'el correo no pertenece a ningun usuario'),
-                                          barrierDismissible: false,
-                                        );
-                                      }
-                                    },
-                                    child: Text(
-                                      'Enviar',
-                                      style: TextStyle(color: Colors.white),
+                                      },
+                                      child: Text(
+                                        'Enviar',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                elevation: 54.0,
-                              ),
-                              barrierDismissible: true,
-                            );
-                          },
-                          child: Textos(
-                              text: "Forgot Password",
-                              size: 19,
-                              color: Colores.morado,
-                              bold: true,
-                              decoration: TextDecoration.underline,
-                              height: 0,
-                              letterSpacing: 0))
-                    ])
-              ],
+                                  ],
+                                  elevation: 54.0,
+                                ),
+                                barrierDismissible: true,
+                              );
+                            },
+                            child: Textos(
+                                text: "Forgot Password",
+                                size: 19,
+                                color: Colores.morado,
+                                bold: true,
+                                decoration: TextDecoration.underline,
+                                height: 0,
+                                letterSpacing: 0))
+                      ])
+                ],
+              ),
             ),
           ),
         ),

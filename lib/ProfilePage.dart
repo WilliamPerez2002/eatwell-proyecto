@@ -9,8 +9,13 @@ import 'herramientas/conexion.dart';
 class ProfilePage extends StatefulWidget {
   final conexion_Mysql? conexion;
   final Map<String, dynamic>? data;
+  final Function(Map<String, dynamic>) actualizarDatos;
 
-  const ProfilePage({super.key, required this.conexion, required this.data});
+  const ProfilePage(
+      {super.key,
+      required this.conexion,
+      required this.data,
+      required this.actualizarDatos});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -36,7 +41,7 @@ class _ProfilePageState extends State<ProfilePage> {
       dateFormat = DateFormat('yyyy-MM-dd');
       nacimiento = dateFormat.parse(data!["fecha_nacimiento"]);
     }
-    print(data!["fecha_nacimiento"]);
+
     var now = DateTime.now();
 
     Duration diferencia = nacimiento.difference(now);

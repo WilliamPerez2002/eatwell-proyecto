@@ -36,16 +36,17 @@ class conexion_Mysql {
     try {
       await initialize();
 
-      var results = await connection.query('select * from USUARIOS');
+      var results =
+          await connection.query('select ID_USU, CONT_USU from USUARIOS');
 
       connection.close();
 
       if (results.isNotEmpty) {
         for (var row in results) {
-          if (usuario == row[0] && contrasena == row[2]) {
+          if (usuario == row[0] && contrasena == row[1]) {
             return true;
           }
-          print('Name: ${row[0]}, Contrasena: ${row[2]}');
+          print('Name: ${row[0]}, Contrasena: ${row[1]}');
         }
         return false;
       } else {
@@ -88,12 +89,45 @@ class conexion_Mysql {
     }
   }
 
+  Future<Map<String, dynamic>?> usuario(String user) async {
+    try {
+      await initialize();
+
+      var result = await connection
+          .query('SELECT * FROM USUARIOS where ID_USU = ?', [user.trim()]);
+
+      connection.close();
+
+      if (result.isNotEmpty) {
+        for (var row in result) {
+          print(
+              "${row[0]}, ${row[1]}, ${row[2]}, ${row[3]}, ${row[4]} AQUI DEBEB APARECER ALGO");
+
+          Map<String, dynamic>? datos = {
+            "id": row[0],
+            "email": row[1],
+            "contrasena": row[2],
+            "fecNac": row[3].toString(),
+            "nombre": row[4],
+            "apellido": row[5]
+          };
+          return datos;
+        }
+      }
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>?> datos(String user) async {
-    String? nombre = await columnaUser(user, 'NOM_USU');
-    String? apellido = await columnaUser(user, 'APE_USU');
-    String? contrasena = await columnaUser(user, 'CONT_USU');
-    String? fechaNac = await columnaUser(user, 'FEC_NAC_USU');
-    String? email = await columnaUser(user, 'EMA_USU');
+    Map<String, dynamic>? datosUsuario = await usuario(user);
+
+    String? nombre = datosUsuario!["nombre"];
+    String? apellido = datosUsuario["apellido"];
+    String? contrasena = datosUsuario["contrasena"];
+    String? fechaNac = datosUsuario["fecNac"];
+    String? email = datosUsuario["email"];
 
     try {
       await initialize();
@@ -177,15 +211,27 @@ class conexion_Mysql {
     var respond = await ingresoIMC(nombreUsuario, estatura, peso);
 
     connection.close();
-    return true && respond;
+    return true && respond == 1;
   }
 
-  Future<bool> ingresoIMC(
+  Future<int> ingresoIMC(
       String nombreUsuario, int estatura, double peso) async {
     try {
       await initialize();
       DateTime date = DateTime.now();
       final fecha = DateFormat('yyyy-MM-dd').format(date);
+
+      var result = await connection.query(
+          'SELECT FEC_REG FROM IMC_DETALLE WHERE ID_USU = ? ', [nombreUsuario]);
+
+      if (result.isNotEmpty) {
+        for (var row in result) {
+          if (fecha == DateFormat('yyyy-MM-dd').format(row[0])) {
+            print("me repetí jeje");
+            return -1;
+          }
+        }
+      }
 
       await connection.query('insert into IMC_DETALLE values (?, ?, ?, ?, ?)', [
         nombreUsuario,
@@ -195,10 +241,10 @@ class conexion_Mysql {
         (peso / ((estatura / 100) * (estatura / 100)))
       ]);
 
-      return true;
+      return 1;
     } catch (e) {
       print(e);
-      return false;
+      return 0;
     }
   }
 
@@ -208,7 +254,7 @@ class conexion_Mysql {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: const Color.fromRGBO(255, 71, 70, 1.0),
+          backgroundColor: Colors.white,
           child: Container(
             padding: const EdgeInsets.all(20),
             child: const Row(
@@ -285,12 +331,24 @@ class conexion_Mysql {
     }
   }
 
-  Future<bool> ingresarNuevoIMC(BuildContext context, String nombreUsuario,
+  Future<int> ingresarNuevoIMC(BuildContext context, String nombreUsuario,
       int estatura, double peso) async {
     // Mostrar el diálogo de carga
     showLoadingDialog(context);
 
-    bool dat = await ingresoIMC(nombreUsuario, estatura, peso);
+    int dat = await ingresoIMC(nombreUsuario, estatura, peso);
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<Map<String, dynamic>?> datosEspera(
+      BuildContext context, String usuario) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    Map<String, dynamic>? dat = await datos(usuario);
 
     hideLoadingDialog(context);
 

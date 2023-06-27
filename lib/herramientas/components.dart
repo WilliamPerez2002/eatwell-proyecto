@@ -5,7 +5,11 @@ import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:charts_flutter/src/text_element.dart' as elements;
+import 'package:charts_flutter/src/text_style.dart' as styles;
 
+import 'dart:math';
 import '../FoodPage.dart';
 import '../IMCPage.dart';
 import '../ProfilePage.dart';
@@ -298,7 +302,7 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
       final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
       setState(() {
         widget.controller.text = formattedDate;
-        print(formattedDate); // Actualiza el valor del TextFormField
+        // Actualiza el valor del TextFormField
       });
     }
   }
@@ -375,6 +379,100 @@ class _textFormFieldsDate extends State<TextFormFieldsDate> {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 )),
+          ),
+        ]));
+  }
+}
+
+class TextFormFieldsDateIMC extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final int validacion;
+
+  const TextFormFieldsDateIMC({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+    required this.validacion,
+  }) : super(key: key);
+
+  @override
+  State<TextFormFieldsDateIMC> createState() => _textFormFieldsDateIMC();
+}
+
+class _textFormFieldsDateIMC extends State<TextFormFieldsDateIMC> {
+  bool presion = false;
+  DateTime date = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateFormat('dd/MM/yyyy')
+          .parseStrict('${date.day}/${date.month}/${date.year}'),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(date.year + 1),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary:
+                  Colores.morado, // Cambia el color principal del DatePicker
+              onPrimary:
+                  Colors.white, // Cambia el color del texto del DatePicker
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
+      setState(() {
+        widget.controller.text = formattedDate;
+        // Actualiza el valor del TextFormField
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        // ignore: prefer_const_constructors
+        margin: EdgeInsets.symmetric(horizontal: 55, vertical: 0),
+        child: Column(children: [
+          TextFormField(
+            onSaved: (value) {},
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Campo vacío';
+              }
+
+              return null;
+            },
+            controller: widget.controller,
+            readOnly: true,
+            onTap: () {
+              presion = true;
+              _selectDate(
+                  context); // Abre el DatePicker cuando se toca el TextFormField
+            },
+            onChanged: (value) {
+              presion = false;
+            },
+            decoration: InputDecoration(
+              labelText: widget.hintText,
+              suffixIcon: Icon(Icons.calendar_today_outlined,
+                  color: presion ? Colores.morado : Colores.rosa),
+              labelStyle: TextStyle(
+                color: Colores.morado,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colores.morado),
+              ),
+            ),
           ),
         ]));
   }
@@ -547,8 +645,8 @@ class ExitoDialog extends StatelessWidget {
 
 class Nav extends StatefulWidget {
   final conexion_Mysql? conexion;
-  final Map<String, dynamic>? datos;
-  const Nav({super.key, required this.conexion, required this.datos});
+  Map<String, dynamic>? datos;
+  Nav({super.key, required this.conexion, required this.datos});
 
   @override
   State<Nav> createState() => _NavState();
@@ -559,6 +657,12 @@ class _NavState extends State<Nav> {
   Map<String, dynamic>? get datos => widget.datos;
   int _selectedIndex = 0;
   late Color color = Colores.rosa;
+
+  void actualizarDatos(Map<String, dynamic> nuevosDatos) {
+    setState(() {
+      widget.datos?.addAll(nuevosDatos);
+    });
+  }
 
   late List<Widget> _pages = [];
 
@@ -582,53 +686,177 @@ class _NavState extends State<Nav> {
   void initState() {
     super.initState();
     _pages = [
-      HomePage(conexion: widget.conexion, data: datos),
-      IMCPage(conexion: widget.conexion, data: datos),
+      HomePage(
+          conexion: widget.conexion,
+          data: datos,
+          actualizarDatos: actualizarDatos),
+      IMCPage(
+          conexion: widget.conexion,
+          data: datos,
+          actualizarDatos: actualizarDatos),
       FoodPage(),
-      ProfilePage(conexion: widget.conexion, data: datos),
+      ProfilePage(
+          conexion: widget.conexion,
+          data: datos,
+          actualizarDatos: actualizarDatos),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          child: GNav(
-              backgroundColor: Colors.white,
-              padding: EdgeInsets.all(7),
-              color: color,
-              activeColor: Colors.white,
-              tabBackgroundColor: color,
-              curve: Curves.easeInCirc,
-              onTabChange: changePage,
-              gap: 8,
-              tabs: [
-                GButton(
-                  icon: Icons.home,
-                  text: 'Home',
-                ),
-                GButton(
-                  icon: Icons.assessment_rounded,
-                  text: 'IMC',
-                ),
-                GButton(
-                  icon: Icons.dining,
-                  text: 'food',
-                ),
-                GButton(
-                  icon: Icons.person,
-                  text: 'Profile',
-                ),
-              ]),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: _pages[_selectedIndex],
+        bottomNavigationBar: Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+            child: GNav(
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.all(7),
+                color: color,
+                activeColor: Colors.white,
+                tabBackgroundColor: color,
+                curve: Curves.easeInCirc,
+                onTabChange: changePage,
+                gap: 8,
+                tabs: [
+                  GButton(
+                    icon: Icons.home,
+                    text: 'Home',
+                  ),
+                  GButton(
+                    icon: Icons.assessment_rounded,
+                    text: 'IMC',
+                  ),
+                  GButton(
+                    icon: Icons.dining,
+                    text: 'food',
+                  ),
+                  GButton(
+                    icon: Icons.person,
+                    text: 'Profile',
+                  ),
+                ]),
+          ),
         ),
       ),
     );
   }
+}
+
+class GraficoIMC extends StatefulWidget {
+  const GraficoIMC({super.key});
+
+  @override
+  State<GraficoIMC> createState() => _GraficoIMCState();
+}
+
+class _GraficoIMCState extends State<GraficoIMC> {
+  static String? pointerAmount;
+  static String? pointerDate;
+  @override
+  Widget build(BuildContext context) {
+    final data = [
+      Expenses(89, DateTime(2023, 7, 1)),
+      Expenses(13, DateTime(2023, 7, 2)),
+      Expenses(14, DateTime(2023, 7, 3)),
+      Expenses(0, DateTime(2023, 7, 4)),
+      Expenses(16, DateTime(2023, 7, 5)),
+    ];
+
+    //VAMOS A INSTANCIAR DESDE UN PRIMER MOMENTO LA GRAFICA CON TODOS LOS VALORES QUE SE HAN INGRESADO
+
+    List<charts.Series<Expenses, DateTime>> series = [
+      charts.Series<Expenses, DateTime>(
+          id: 'Lineal',
+          domainFn: (v, i) => v.date,
+          measureFn: (v, i) => v.imc,
+          data: data,
+          colorFn: (v, i) => charts.ColorUtil.fromDartColor(Colores.rosa))
+    ];
+    return Center(
+      child: SizedBox(
+        height: 300.0,
+        child: charts.TimeSeriesChart(
+          series,
+          selectionModels: [
+            charts.SelectionModelConfig(
+                changedListener: (charts.SelectionModel model) {
+              if (model.hasDatumSelection) {
+                pointerAmount = model.selectedSeries[0]
+                    .measureFn(model.selectedDatum[0].index)
+                    ?.toStringAsFixed(2);
+                pointerDate = model.selectedSeries[0]
+                    .domainFn(model.selectedDatum[0].index)
+                    ?.toString();
+              }
+            })
+          ],
+          behaviors: [
+            charts.LinePointHighlighter(symbolRenderer: SimbolRender()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SimbolRender extends charts.CircleSymbolRenderer {
+  @override
+  void paint(charts.ChartCanvas canvas, Rectangle<num> bounds,
+      {List<int>? dashPattern,
+      charts.Color? fillColor,
+      charts.FillPatternType? fillPattern,
+      charts.Color? strokeColor,
+      double? strokeWidthPx}) {
+    // TODO: implement paint
+    super.paint(canvas, bounds,
+        dashPattern: dashPattern,
+        fillColor: fillColor,
+        fillPattern: fillPattern,
+        strokeColor: strokeColor,
+        strokeWidthPx: strokeWidthPx);
+
+    canvas.drawRect(
+        Rectangle(bounds.left - 30, bounds.top - 32, bounds.width + 68,
+            bounds.height + 18),
+        fill: charts.Color.white,
+        stroke: charts.Color.black,
+        strokeWidthPx: 2);
+
+    String formattedDate = '';
+
+    String? pointerDate = _GraficoIMCState.pointerDate;
+    if (pointerDate != null) {
+      DateTime date = DateTime.parse(pointerDate);
+      formattedDate = DateFormat('dd/MM/yyyy').format(date);
+    }
+
+    var style = styles.TextStyle();
+    style.fontSize = 10;
+    style.color = charts.Color.black;
+    style.fontFamily = 'lato';
+
+    canvas.drawText(
+        elements.TextElement(
+          '${_GraficoIMCState.pointerAmount}\n$formattedDate',
+          style: style,
+        ),
+        (bounds.left - 20).round(),
+        (bounds.top - 28).round());
+  }
+}
+
+class Expenses {
+  final double imc;
+  final DateTime date;
+
+  Expenses(this.imc, this.date);
 }
 
 class Colores {

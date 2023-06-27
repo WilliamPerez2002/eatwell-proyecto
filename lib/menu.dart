@@ -27,8 +27,7 @@ class _MyMenuState extends State<MyMenu> {
     return WillPopScope(
       onWillPop: () async {
         // Evitar el retroceso automático
-        print(id! + nombreUser!);
-        conexion.datos(id!);
+
         return false;
       },
       child: Nav(

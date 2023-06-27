@@ -8,8 +8,13 @@ import 'herramientas/conexion.dart';
 class HomePage extends StatefulWidget {
   final conexion_Mysql? conexion;
   final Map<String, dynamic>? data;
+  final Function(Map<String, dynamic>) actualizarDatos;
 
-  HomePage({Key? key, required this.conexion, required this.data});
+  HomePage(
+      {Key? key,
+      required this.conexion,
+      required this.data,
+      required this.actualizarDatos});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -18,13 +23,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   conexion_Mysql? get conexion => widget.conexion;
   Map<String, dynamic>? get data => widget.data;
-  Map<String, dynamic>? newData;
-
-  void actualizarDatos(Map<String, dynamic> nuevosDatos) {
-    setState(() {
-      newData = nuevosDatos;
-    });
-  }
 
   String elegirHora() {
     var now = DateTime.now();
@@ -33,7 +31,7 @@ class _HomePageState extends State<HomePage> {
     if (int.parse(formattedTime) >= 5 && int.parse(formattedTime) <= 12) {
       return 'Buenos días';
     } else if (int.parse(formattedTime) >= 13 &&
-        int.parse(formattedTime) <= 19) {
+        int.parse(formattedTime) < 19) {
       return 'Buenas tardes';
     } else {
       return 'Buenas noches';
@@ -55,9 +53,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   String fechaIMC() {
+    if (data!["fecha"].contains("/")) {
+      return data!["fecha"];
+    }
     DateTime fecha = DateFormat('yyyy-MM-dd').parse(data!["fecha"]);
     String fechaFormateada = DateFormat('dd/MM/yyyy').format(fecha);
-    print("Fecha: $fechaFormateada");
     return fechaFormateada;
   }
 

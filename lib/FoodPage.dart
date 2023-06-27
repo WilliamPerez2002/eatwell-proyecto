@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'herramientas/components.dart';
+
 class FoodPage extends StatefulWidget {
   const FoodPage({super.key});
 
@@ -11,14 +13,17 @@ class _FoodPageState extends State<FoodPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Column(
+        child: const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Food Page"),
-        ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text("Back"))
+        ImageComponent(
+          imagePath: 'assets/trabajo.png',
+          topMargin: 0.006,
+          leftMargin: 15,
+          rightMargin: 10,
+          widthSize: 0.9,
+          heightSize: 0.70,
+        ),
       ],
     ));
   }
