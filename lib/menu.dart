@@ -13,16 +13,14 @@ class MyMenu extends StatefulWidget {
 
 class _MyMenuState extends State<MyMenu> {
   conexion_Mysql get conexion => widget.conexion;
-  var data;
-  String? nombreUser;
-  String? id;
 
   @override
   Widget build(BuildContext context) {
-    // Obtener los argumentos enviados desde la pantalla anterior
-    data = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    id = data!['id'];
-    nombreUser = data!['nombre'];
+    final MyArguments args =
+        ModalRoute.of(context)!.settings.arguments as MyArguments;
+
+    final Map<String, dynamic>? data = args.datos;
+    final List<DataPoint> imc = args.imc;
 
     return WillPopScope(
       onWillPop: () async {
@@ -33,6 +31,7 @@ class _MyMenuState extends State<MyMenu> {
       child: Nav(
         conexion: conexion,
         datos: data,
+        dataPoints: imc,
       ),
     );
   }

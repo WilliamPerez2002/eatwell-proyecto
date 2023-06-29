@@ -105,6 +105,18 @@ class _MyLoginState extends State<MyLogin> {
     return dat;
   }
 
+  Future<List<DataPoint>> retornoIMC(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<DataPoint> dat =
+        await conexion.getDatosIMC(nombreUsuarioController.text.trim());
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
   limpiar() {
     nombreUsuarioController.clear();
     contrasenaController.clear();
@@ -206,9 +218,22 @@ class _MyLoginState extends State<MyLogin> {
                                       Map<String, dynamic>? datos =
                                           (await datosC(context));
 
-                                      Navigator.pushNamed(context, 'menu',
-                                          arguments: datos);
-                                      limpiar();
+                                      List<DataPoint> imc =
+                                          await retornoIMC(context);
+
+                                      if (datos!.isNotEmpty && imc.isNotEmpty) {
+                                        Navigator.pushNamed(context, 'menu',
+                                            arguments: MyArguments(datos, imc));
+                                        limpiar();
+                                      } else {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (_) => ErrorDialog(
+                                              text:
+                                                  'Problemas con el servidor, por favor, reinicie la aplicación'),
+                                          barrierDismissible: false,
+                                        );
+                                      }
                                     } else {
                                       await showDialog(
                                         context: context,

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 
+import 'components.dart';
+
 class conexion_Mysql {
   static String host = 'sql9.freesqldatabase.com',
       user = 'sql9627390',
@@ -118,6 +120,7 @@ class conexion_Mysql {
       print('Error querying MySQL: $e');
       return null;
     }
+    return null;
   }
 
   Future<Map<String, dynamic>?> datos(String user) async {
@@ -227,7 +230,6 @@ class conexion_Mysql {
       if (result.isNotEmpty) {
         for (var row in result) {
           if (fecha == DateFormat('yyyy-MM-dd').format(row[0])) {
-            print("me repetí jeje");
             return -1;
           }
         }
@@ -349,6 +351,103 @@ class conexion_Mysql {
     showLoadingDialog(context);
 
     Map<String, dynamic>? dat = await datos(usuario);
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<List<DataPoint>> getDatosIMC(String usuario) async {
+    try {
+      await initialize();
+
+      var results = await connection.query(
+          'SELECT FEC_REG, IMC FROM IMC_DETALLE WHERE ID_USU = ? ORDER BY FEC_REG ASC',
+          [usuario]);
+
+      connection.close();
+
+      List<DataPoint> datos = [];
+
+      if (results.isNotEmpty) {
+        for (var row in results) {
+          DateTime fecha = row[0];
+          double imc = row[1];
+
+          datos.add(DataPoint(imc, fecha));
+        }
+      }
+
+      for (var d in datos) {
+        print("IMC: ${d.getImc()}");
+        print("FECHA: ${d.getDate()}");
+      }
+
+      return datos;
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return [];
+    }
+  }
+
+  Future<List<DataPoint>> getDatosIMCE(
+      BuildContext context, String usuario) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<DataPoint> dat = await getDatosIMC(usuario);
+
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<List<DataPoint>> recuperarIMCfechas(
+      String fechaInicio, String fechaFinal, String usuario) async {
+    try {
+      await initialize();
+
+      // Formato de entrada (dd/MM/yyyy)
+      final entradaInicio = DateFormat('dd/MM/yyyy').parse(fechaInicio);
+      final salidaInicio = DateFormat('yyyy-MM-dd').format(entradaInicio);
+
+      final entradaFinal = DateFormat('dd/MM/yyyy').parse(fechaFinal);
+      final salidaFinal = DateFormat('yyyy-MM-dd').format(entradaFinal);
+
+      var results = await connection.query(
+          'SELECT FEC_REG, IMC FROM IMC_DETALLE WHERE ID_USU = ? AND FEC_REG BETWEEN ? AND ? ORDER BY FEC_REG ASC',
+          [usuario, salidaInicio, salidaFinal]);
+
+      List<DataPoint> datos = [];
+
+      if (results.isNotEmpty) {
+        for (var row in results) {
+          DateTime fecha = row[0];
+          double imc = row[1];
+
+          datos.add(DataPoint(imc, fecha));
+        }
+      }
+
+      for (var d in datos) {
+        print("IMCES AQUI: ${d.getImc()}");
+        print("FECHA: ${d.getDate()}");
+      }
+
+      return datos;
+    } catch (e) {
+      print('Error querying MySQL: $e');
+      return [];
+    } finally {}
+  }
+
+  Future<List<DataPoint>> recuperarIMCfechasE(BuildContext context,
+      String fechaInicio, String fechaFinal, String usuario) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<DataPoint> dat =
+        await recuperarIMCfechas(fechaInicio, fechaFinal, usuario);
 
     hideLoadingDialog(context);
 

@@ -9,12 +9,14 @@ class IMCPage extends StatefulWidget {
   final conexion_Mysql? conexion;
   final Map<String, dynamic>? data;
   final Function(Map<String, dynamic>) actualizarDatos;
+  List<DataPoint> dataPoints;
 
-  const IMCPage(
+  IMCPage(
       {super.key,
       required this.conexion,
       required this.data,
-      required this.actualizarDatos});
+      required this.actualizarDatos,
+      required this.dataPoints});
 
   @override
   State<IMCPage> createState() => _IMCPageState();
@@ -23,6 +25,7 @@ class IMCPage extends StatefulWidget {
 class _IMCPageState extends State<IMCPage> {
   conexion_Mysql? get conexion => widget.conexion;
   Map<String, dynamic>? get data => widget.data;
+  List<DataPoint> get dataPoints => widget.dataPoints;
   Function(Map<String, dynamic>) get actualizarDatos => widget.actualizarDatos;
 
   TextEditingController alturaController = TextEditingController();
@@ -37,11 +40,47 @@ class _IMCPageState extends State<IMCPage> {
     actualizarDatos(nuevosDatos!);
   }
 
+  List<DataPoint> datas = [];
+
+  void onDataUpdatede() {}
+
+  Future<void> onDataUpdated(int n) async {
+    if (n == 1) {
+      List<DataPoint>? d = await conexion!.getDatosIMCE(context, data!['id']);
+
+      if (d.isNotEmpty) {
+        setState(() {
+          widget.dataPoints = d;
+        });
+      } else {}
+    } else {
+      List<DataPoint>? d = await conexion!.recuperarIMCfechasE(
+          context,
+          inicioController.text.trim(),
+          finalController.text.trim(),
+          data!["id"]);
+
+      if (d.isNotEmpty) {
+        setState(() {
+          widget.dataPoints = d;
+        });
+      } else {
+        await showDialog(
+          context: context,
+          builder: (_) => ErrorDialog(
+              text: 'No hay datos para mostrar en este rango de fechas.'),
+          barrierDismissible: false,
+        );
+      }
+    }
+  }
+
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    datas = dataPoints;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -52,7 +91,7 @@ class _IMCPageState extends State<IMCPage> {
               Stack(
                 children: [
                   Cards(
-                    height: MediaQuery.of(context).size.height * 1.90,
+                    height: MediaQuery.of(context).size.height * 1.80,
                     width: MediaQuery.of(context).size.width * 0.95,
                     color: Colores.celeste,
                     elevation: 20,
@@ -260,6 +299,8 @@ class _IMCPageState extends State<IMCPage> {
                                                 if (pasar == 1) {
                                                   await actualizarDatosEnPagina();
 
+                                                  await onDataUpdated(1);
+
                                                   await showDialog(
                                                     context: context,
                                                     builder: (_) => ExitoDialog(
@@ -297,7 +338,7 @@ class _IMCPageState extends State<IMCPage> {
                       ),
                       Cards(
                         color: Colors.white,
-                        height: 790,
+                        height: 750,
                         width: 330,
                         elevation: 10,
                         children: [
@@ -369,6 +410,8 @@ class _IMCPageState extends State<IMCPage> {
                                               if (_formKey2.currentState!
                                                   .validate()) {
                                                 //AQUI VA A IR EL METODO QUE VA A DIBUJAR EL HISTOGRAMA
+
+                                                await onDataUpdated(0);
                                               }
                                             },
                                             child: Text("Dibujar"))),
@@ -376,11 +419,14 @@ class _IMCPageState extends State<IMCPage> {
                                       height: 30,
                                     ),
                                     Container(
-                                      child: GraficoIMC(),
+                                      child: GraficoIMC2(
+                                        onDataUpdated: onDataUpdatede,
+                                        datas: datas,
+                                      ),
                                     )
                                   ],
                                 )),
-                          )
+                          ),
                         ],
                       ),
                     ],

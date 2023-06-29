@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_flutter/src/text_element.dart' as elements;
 import 'package:charts_flutter/src/text_style.dart' as styles;
+import 'dart:math' as math;
+import 'package:fl_chart/fl_chart.dart';
 
 import 'dart:math';
 import '../FoodPage.dart';
@@ -646,7 +648,12 @@ class ExitoDialog extends StatelessWidget {
 class Nav extends StatefulWidget {
   final conexion_Mysql? conexion;
   Map<String, dynamic>? datos;
-  Nav({super.key, required this.conexion, required this.datos});
+  List<DataPoint> dataPoints;
+  Nav(
+      {super.key,
+      required this.conexion,
+      required this.datos,
+      required this.dataPoints});
 
   @override
   State<Nav> createState() => _NavState();
@@ -655,6 +662,7 @@ class Nav extends StatefulWidget {
 class _NavState extends State<Nav> {
   conexion_Mysql? get conexion => widget.conexion;
   Map<String, dynamic>? get datos => widget.datos;
+  List<DataPoint> get dataPoints => widget.dataPoints;
   int _selectedIndex = 0;
   late Color color = Colores.rosa;
 
@@ -691,9 +699,11 @@ class _NavState extends State<Nav> {
           data: datos,
           actualizarDatos: actualizarDatos),
       IMCPage(
-          conexion: widget.conexion,
-          data: datos,
-          actualizarDatos: actualizarDatos),
+        conexion: widget.conexion,
+        data: datos,
+        actualizarDatos: actualizarDatos,
+        dataPoints: dataPoints,
+      ),
       FoodPage(),
       ProfilePage(
           conexion: widget.conexion,
@@ -749,114 +759,164 @@ class _NavState extends State<Nav> {
   }
 }
 
-class GraficoIMC extends StatefulWidget {
-  const GraficoIMC({super.key});
+class GraficoIMC2 extends StatefulWidget {
+  final Function() onDataUpdated;
+  List<DataPoint> datas;
+
+  GraficoIMC2({Key? key, required this.onDataUpdated, required this.datas})
+      : super(key: key);
 
   @override
-  State<GraficoIMC> createState() => _GraficoIMCState();
+  State<GraficoIMC2> createState() => _GraficoIMC2State();
 }
 
-class _GraficoIMCState extends State<GraficoIMC> {
-  static String? pointerAmount;
-  static String? pointerDate;
+class _GraficoIMC2State extends State<GraficoIMC2> {
+  void updateData() {
+    widget.onDataUpdated();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final data = [
-      Expenses(89, DateTime(2023, 7, 1)),
-      Expenses(13, DateTime(2023, 7, 2)),
-      Expenses(14, DateTime(2023, 7, 3)),
-      Expenses(0, DateTime(2023, 7, 4)),
-      Expenses(16, DateTime(2023, 7, 5)),
-    ];
+    return Container(
+      child: Center(
+        child: SizedBox(
+          height: 300.0,
+          child: LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  spots: widget.datas.map((point) {
+                    return FlSpot(
+                      point.date.millisecondsSinceEpoch.toDouble(),
+                      point.imc.toDouble(),
+                    );
+                  }).toList(),
+                  isCurved: true,
+                  colors: [
+                    Colores.rosa,
+                  ],
+                  barWidth: 3,
+                  belowBarData: BarAreaData(
+                    show: true,
+                    colors: [
+                      Colores.rosa.withOpacity(0.7),
+                      Colores.rosa.withOpacity(0.3),
+                    ],
+                    gradientColorStops: [0.0, 0.8],
+                    gradientFrom: const Offset(0, 0),
+                    gradientTo: const Offset(0, 1),
+                  ),
+                ),
+              ],
+              minX: widget.datas.first.date.millisecondsSinceEpoch.toDouble() -
+                  (30 * 60 * 1000),
+              maxX: widget.datas.last.date.millisecondsSinceEpoch.toDouble() +
+                  (30 * 60 * 1000),
+              minY: 10,
+              maxY: widget.datas
+                      .map((point) => point.imc)
+                      .reduce((a, b) => a > b ? a : b)
+                      .toDouble() +
+                  10,
+              titlesData: FlTitlesData(
+                bottomTitles: SideTitles(showTitles: false),
+                leftTitles: SideTitles(showTitles: false),
+              ),
+              gridData: FlGridData(
+                show: true,
+                getDrawingHorizontalLine: (value) {
+                  return FlLine(
+                    color: Colores.rosa.withOpacity(0.2),
+                    strokeWidth: 0.2,
+                  );
+                },
+              ),
+              backgroundColor: Colors.white.withOpacity(0.5),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(
+                  color: Colores.rosa,
+                  width: 1,
+                ),
+              ),
+              axisTitleData: FlAxisTitleData(
+                show: true,
+                leftTitle: AxisTitle(
+                  showTitle: true,
+                  titleText: 'IMC',
+                  margin: 2,
+                  textStyle: const TextStyle(
+                      color: Color.fromRGBO(75, 68, 82, 1.0),
+                      fontSize: 12,
+                      fontFamily: 'lato'),
+                ),
+                bottomTitle: AxisTitle(
+                  showTitle: true,
+                  titleText: 'Fecha',
+                  margin: 4,
+                  textStyle: const TextStyle(
+                    color: Color.fromRGBO(75, 68, 82, 1.0),
+                    fontSize: 12,
+                    fontFamily: 'lato',
+                  ),
+                ),
+              ),
+              rangeAnnotations: RangeAnnotations(
+                verticalRangeAnnotations: [
+                  VerticalRangeAnnotation(
+                    x1: widget.datas.first.date.millisecondsSinceEpoch
+                        .toDouble(),
+                    x2: widget.datas.last.date.millisecondsSinceEpoch
+                        .toDouble(),
+                    color: Colores.rosa.withOpacity(0.1),
+                  ),
+                ],
+              ),
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipBgColor: Colores.celeste.withOpacity(0.8),
+                  getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
+                    return lineBarsSpot.map((lineBarSpot) {
+                      DateTime date = DateTime.fromMillisecondsSinceEpoch(
+                          lineBarSpot.x.toInt());
+                      double imc = lineBarSpot.y.toDouble();
 
-    //VAMOS A INSTANCIAR DESDE UN PRIMER MOMENTO LA GRAFICA CON TODOS LOS VALORES QUE SE HAN INGRESADO
-
-    List<charts.Series<Expenses, DateTime>> series = [
-      charts.Series<Expenses, DateTime>(
-          id: 'Lineal',
-          domainFn: (v, i) => v.date,
-          measureFn: (v, i) => v.imc,
-          data: data,
-          colorFn: (v, i) => charts.ColorUtil.fromDartColor(Colores.rosa))
-    ];
-    return Center(
-      child: SizedBox(
-        height: 300.0,
-        child: charts.TimeSeriesChart(
-          series,
-          selectionModels: [
-            charts.SelectionModelConfig(
-                changedListener: (charts.SelectionModel model) {
-              if (model.hasDatumSelection) {
-                pointerAmount = model.selectedSeries[0]
-                    .measureFn(model.selectedDatum[0].index)
-                    ?.toStringAsFixed(2);
-                pointerDate = model.selectedSeries[0]
-                    .domainFn(model.selectedDatum[0].index)
-                    ?.toString();
-              }
-            })
-          ],
-          behaviors: [
-            charts.LinePointHighlighter(symbolRenderer: SimbolRender()),
-          ],
+                      return LineTooltipItem(
+                        'IMC: $imc\nFecha: ${date.day}/${date.month}/${date.year}',
+                        const TextStyle(color: Colors.white),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class SimbolRender extends charts.CircleSymbolRenderer {
-  @override
-  void paint(charts.ChartCanvas canvas, Rectangle<num> bounds,
-      {List<int>? dashPattern,
-      charts.Color? fillColor,
-      charts.FillPatternType? fillPattern,
-      charts.Color? strokeColor,
-      double? strokeWidthPx}) {
-    // TODO: implement paint
-    super.paint(canvas, bounds,
-        dashPattern: dashPattern,
-        fillColor: fillColor,
-        fillPattern: fillPattern,
-        strokeColor: strokeColor,
-        strokeWidthPx: strokeWidthPx);
-
-    canvas.drawRect(
-        Rectangle(bounds.left - 30, bounds.top - 32, bounds.width + 68,
-            bounds.height + 18),
-        fill: charts.Color.white,
-        stroke: charts.Color.black,
-        strokeWidthPx: 2);
-
-    String formattedDate = '';
-
-    String? pointerDate = _GraficoIMCState.pointerDate;
-    if (pointerDate != null) {
-      DateTime date = DateTime.parse(pointerDate);
-      formattedDate = DateFormat('dd/MM/yyyy').format(date);
-    }
-
-    var style = styles.TextStyle();
-    style.fontSize = 10;
-    style.color = charts.Color.black;
-    style.fontFamily = 'lato';
-
-    canvas.drawText(
-        elements.TextElement(
-          '${_GraficoIMCState.pointerAmount}\n$formattedDate',
-          style: style,
-        ),
-        (bounds.left - 20).round(),
-        (bounds.top - 28).round());
-  }
-}
-
-class Expenses {
+class DataPoint {
   final double imc;
   final DateTime date;
 
-  Expenses(this.imc, this.date);
+  DataPoint(this.imc, this.date);
+
+  double getImc() {
+    return imc;
+  }
+
+  DateTime getDate() {
+    return date;
+  }
+}
+
+class MyArguments {
+  final Map<String, dynamic> datos;
+  final List<DataPoint> imc;
+
+  MyArguments(this.datos, this.imc);
 }
 
 class Colores {

@@ -541,12 +541,16 @@ class _MyRegisterState extends State<MyRegister> {
                                       "contrasena":
                                           contrasenaController.text.trim(),
                                     };
+
+                                    List<DataPoint> data = [
+                                      DataPoint(
+                                          double.parse(imc), DateTime.now())
+                                    ];
+
                                     Navigator.pushNamed(context, 'menu',
-                                        arguments: datos);
+                                        arguments: MyArguments(datos, data));
                                     limpiar();
                                   } catch (e) {
-                                    print(e);
-
                                     if (e.toString().contains("'PRIMARY'")) {
                                       await showDialog(
                                         context: context,
