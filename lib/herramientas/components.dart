@@ -10,8 +10,6 @@ import 'package:charts_flutter/src/text_element.dart' as elements;
 import 'package:charts_flutter/src/text_style.dart' as styles;
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
-
-import 'dart:math';
 import '../FoodPage.dart';
 import '../IMCPage.dart';
 import '../ProfilePage.dart';
@@ -771,9 +769,7 @@ class GraficoIMC2 extends StatefulWidget {
 }
 
 class _GraficoIMC2State extends State<GraficoIMC2> {
-  void updateData() {
-    widget.onDataUpdated();
-  }
+  void updateData() {}
 
   @override
   Widget build(BuildContext context) {
@@ -878,17 +874,113 @@ class _GraficoIMC2State extends State<GraficoIMC2> {
                   getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
                     return lineBarsSpot.map((lineBarSpot) {
                       DateTime date = DateTime.fromMillisecondsSinceEpoch(
-                          lineBarSpot.x.toInt());
+                              lineBarSpot.x.toInt(),
+                              isUtc: true)
+                          .toLocal();
+                      print(date);
+
+                      DateTime nextDay = date.add(Duration(days: 1));
                       double imc = lineBarSpot.y.toDouble();
 
                       return LineTooltipItem(
-                        'IMC: $imc\nFecha: ${date.day}/${date.month}/${date.year}',
+                        'IMC: $imc\nFecha: ${nextDay.day}/${date.month}/${date.year}',
                         const TextStyle(color: Colors.white),
                       );
                     }).toList();
                   },
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TablaDatos extends StatefulWidget {
+  List<DataPoint> datas;
+
+  TablaDatos({super.key, required this.datas});
+
+  @override
+  State<TablaDatos> createState() => _TablaDatosState();
+}
+
+class _TablaDatosState extends State<TablaDatos> {
+  List<DataPoint> get datas => widget.datas;
+  List<DataRow> dataRows = [];
+
+  convertirRows() {
+    dataRows = [];
+    for (var i = 0; i < datas.length; i++) {
+      dataRows.add(
+        DataRow(cells: [
+          DataCell(Text(
+            DateFormat('dd-MM-yyyy').format(datas[i].date),
+            style: TextStyle(
+                fontSize: 15,
+                fontFamily: 'lato',
+                color: Colores.morado,
+                fontWeight: FontWeight.bold),
+          )),
+          DataCell(Text(
+            datas[i].imc.toString(),
+            style: TextStyle(
+                fontSize: 15,
+                fontFamily: 'lato',
+                color: Colores.morado,
+                fontWeight: FontWeight.bold),
+          )),
+        ]),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    convertirRows();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colores.rosa.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colores.morado,
+          width: 2,
+        ),
+      ),
+      constraints: BoxConstraints(maxHeight: 300),
+      width: 300, // Establece una altura máxima
+      child: SingleChildScrollView(
+        child: DataTable(
+          columns: [
+            DataColumn(
+                label: Text(
+              'FECHA',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'lato',
+                  color: Colores.morado,
+                  fontWeight: FontWeight.bold),
+            )),
+            DataColumn(
+                label: Text(
+              'IMC',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'lato',
+                  color: Colores.morado,
+                  fontWeight: FontWeight.bold),
+            )),
+          ],
+          rows: [
+            for (var i = 0; i < dataRows.length; i++) dataRows[i],
+          ],
+          border: TableBorder(
+            horizontalInside: BorderSide(
+              color: Colores.morado,
+              width: 2,
             ),
           ),
         ),
