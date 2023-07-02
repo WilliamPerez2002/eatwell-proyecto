@@ -31,7 +31,7 @@ class _MyRegisterState extends State<MyRegister> {
   final _formKey = GlobalKey<FormState>();
   bool cuenta = true;
   bool adicional = false;
-  Color colorCuenta = Color.fromRGBO(75, 68, 82, 1.0);
+  Color colorCuenta = Colores.morado;
   Color colorAdicional = Colors.transparent;
 
   Future<bool> insertar() async {
@@ -52,14 +52,14 @@ class _MyRegisterState extends State<MyRegister> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Color.fromRGBO(255, 71, 70, 1.0),
+          backgroundColor: Colores.rosa,
           child: Container(
             padding: EdgeInsets.all(20),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircularProgressIndicator(
-                  color: Color.fromRGBO(75, 68, 82, 1.0),
+                  color: Colores.morado,
                 ),
                 SizedBox(width: 20),
                 Text('Cargando...'),
@@ -103,7 +103,7 @@ class _MyRegisterState extends State<MyRegister> {
       return '$opcion muy corto';
     }
 
-    if (value.length > 20) {
+    if (value.length > 10) {
       return '$opcion muy largo';
     }
 
@@ -196,7 +196,7 @@ class _MyRegisterState extends State<MyRegister> {
       return 'Nombre de usuario muy corto';
     }
 
-    if (value.length > 20) {
+    if (value.length > 10) {
       return 'Nombre de usuario muy largo';
     }
 
@@ -324,11 +324,11 @@ class _MyRegisterState extends State<MyRegister> {
                   height: 0.20,
                   children: const [
                     WelcomeComponent(
-                      title: 'Nueva \nCuenta',
-                      topMargin: 0.01,
-                      leftMargin: 13,
-                      alignment: Alignment.centerLeft,
-                    ),
+                        title: 'Nueva \nCuenta',
+                        topMargin: 0.01,
+                        leftMargin: 13,
+                        alignment: Alignment.centerLeft,
+                        color: Colors.white),
                     ImageComponent(
                       imagePath: 'assets/dieta.png',
                       topMargin: 0.01,
@@ -353,7 +353,7 @@ class _MyRegisterState extends State<MyRegister> {
                           setState(() {
                             cuenta = true;
                             adicional = false;
-                            colorCuenta = Color.fromRGBO(75, 68, 82, 1.0);
+                            colorCuenta = Colores.morado;
                             colorAdicional = Colors.transparent;
                           });
                         },
@@ -368,7 +368,7 @@ class _MyRegisterState extends State<MyRegister> {
                           setState(() {
                             cuenta = false;
                             adicional = true;
-                            colorAdicional = Color.fromRGBO(75, 68, 82, 1.0);
+                            colorAdicional = Colores.morado;
                             colorCuenta = Colors.transparent;
                           });
                         },
@@ -472,7 +472,7 @@ class _MyRegisterState extends State<MyRegister> {
                       Textos(
                         text: "Sign Up",
                         size: 30,
-                        color: Color.fromRGBO(75, 68, 82, 1.0),
+                        color: Colores.morado,
                         bold: true,
                         decoration: TextDecoration.none,
                         height: 0,
@@ -493,7 +493,7 @@ class _MyRegisterState extends State<MyRegister> {
                         ),
                         child: CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color.fromRGBO(75, 68, 82, 1.0),
+                          backgroundColor: Colores.morado,
                           child: IconButton(
                             icon: Icon(Icons.chevron_right_rounded, size: 30),
                             color: Colors.black,
@@ -514,11 +514,43 @@ class _MyRegisterState extends State<MyRegister> {
                                           text: 'Usuario agregado con exito'),
                                       barrierDismissible: false,
                                     );
-                                    limpiar();
-                                    Navigator.pushNamed(context, 'menu');
-                                  } catch (e) {
-                                    print(e);
 
+                                    DateFormat fecha = DateFormat('dd/MM/yyyy');
+                                    String formattedDate =
+                                        fecha.format(DateTime.now());
+
+                                    var peso = double.parse(
+                                        pesoController.text.trim());
+                                    var estatura = double.parse(
+                                        estaturaController.text.trim());
+                                    var imc = (peso /
+                                            ((estatura / 100) *
+                                                (estatura / 100)))
+                                        .toStringAsFixed(2);
+
+                                    Map<String, dynamic>? datos = {
+                                      "nombre": nombreController.text.trim(),
+                                      "apellido":
+                                          apellidoController.text.trim(),
+                                      "email": emailController.text.trim(),
+                                      "fecha": formattedDate,
+                                      "imc": imc.toString(),
+                                      "id": nombreController.text.trim(),
+                                      "fecha_nacimiento":
+                                          fechaNacimientoController.text.trim(),
+                                      "contrasena":
+                                          contrasenaController.text.trim(),
+                                    };
+
+                                    List<DataPoint> data = [
+                                      DataPoint(
+                                          double.parse(imc), DateTime.now())
+                                    ];
+
+                                    Navigator.pushNamed(context, 'menu',
+                                        arguments: MyArguments(datos, data));
+                                    limpiar();
+                                  } catch (e) {
                                     if (e.toString().contains("'PRIMARY'")) {
                                       await showDialog(
                                         context: context,
@@ -577,7 +609,7 @@ class _MyRegisterState extends State<MyRegister> {
                           child: Textos(
                               text: "Sign In",
                               size: 19,
-                              color: Color.fromRGBO(75, 68, 82, 1.0),
+                              color: Colores.morado,
                               bold: true,
                               decoration: TextDecoration.underline,
                               height: 0,
