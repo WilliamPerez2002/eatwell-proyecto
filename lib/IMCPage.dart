@@ -91,7 +91,7 @@ class _IMCPageState extends State<IMCPage> {
               Stack(
                 children: [
                   Cards(
-                    height: MediaQuery.of(context).size.height * 1.80,
+                    height: MediaQuery.of(context).size.height * 2.90,
                     width: MediaQuery.of(context).size.width * 0.95,
                     color: Colores.celeste,
                     elevation: 20,
@@ -334,11 +334,11 @@ class _IMCPageState extends State<IMCPage> {
                         ],
                       ),
                       SizedBox(
-                        height: 50,
+                        height: 30,
                       ),
                       Cards(
                         color: Colors.white,
-                        height: 750,
+                        height: 720,
                         width: 330,
                         elevation: 10,
                         children: [
@@ -415,20 +415,32 @@ class _IMCPageState extends State<IMCPage> {
                                               }
                                             },
                                             child: Text("Dibujar"))),
-                                    SizedBox(
-                                      height: 30,
-                                    ),
-                                    Container(
-                                      child: GraficoIMC2(
-                                        onDataUpdated: onDataUpdatede,
-                                        datas: datas,
-                                      ),
-                                    )
                                   ],
                                 )),
                           ),
+                          SizedBox(
+                            height: 40,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 0, right: 15),
+                            width: 350,
+                            child: GraficoIMC2(
+                              onDataUpdated: onDataUpdatede,
+                              datas: datas,
+                            ),
+                          )
                         ],
                       ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Cards(
+                        color: Colors.white,
+                        height: 620,
+                        width: 330,
+                        elevation: 10,
+                        children: [],
+                      )
                     ],
                   ),
                 ],
