@@ -3,6 +3,7 @@ import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
 import 'herramientas/components.dart';
 import 'package:eatwell/herramientas/envioEmail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyLogin extends StatefulWidget {
   final conexion_Mysql conexion;
@@ -109,6 +110,8 @@ class _MyLoginState extends State<MyLogin> {
     // Mostrar el diálogo de carga
     showLoadingDialog(context);
 
+    await guardarDatos(nombreUsuarioController.text.trim());
+
     List<DataPoint> dat =
         await conexion.getDatosIMC(nombreUsuarioController.text.trim());
 
@@ -121,6 +124,12 @@ class _MyLoginState extends State<MyLogin> {
     nombreUsuarioController.clear();
     contrasenaController.clear();
     correoController.clear();
+  }
+
+  guardarDatos(String nombreUsuario) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('nombre', nombreUsuario);
+    print('Guardado');
   }
 
   @override

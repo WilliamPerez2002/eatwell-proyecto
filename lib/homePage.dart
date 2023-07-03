@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     if (int.parse(formattedTime) >= 5 && int.parse(formattedTime) <= 12) {
       return "assets/dias.png";
     } else if (int.parse(formattedTime) >= 13 &&
-        int.parse(formattedTime) <= 19) {
+        int.parse(formattedTime) < 19) {
       return "assets/tarde.png";
     } else {
       return "assets/noche2.png";

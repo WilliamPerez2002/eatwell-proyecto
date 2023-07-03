@@ -4,8 +4,9 @@ import 'herramientas/components.dart';
 
 class MyMenu extends StatefulWidget {
   final conexion_Mysql conexion;
+  MyArguments? arg;
 
-  MyMenu({Key? key, required this.conexion}) : super(key: key);
+  MyMenu({Key? key, required this.conexion, this.arg}) : super(key: key);
 
   @override
   State<MyMenu> createState() => _MyMenuState();
@@ -13,14 +14,22 @@ class MyMenu extends StatefulWidget {
 
 class _MyMenuState extends State<MyMenu> {
   conexion_Mysql get conexion => widget.conexion;
+  MyArguments? get arg => widget.arg;
 
   @override
   Widget build(BuildContext context) {
-    final MyArguments args =
-        ModalRoute.of(context)!.settings.arguments as MyArguments;
+    final Map<String, dynamic>? data;
+    final List<DataPoint> imc;
 
-    final Map<String, dynamic>? data = args.datos;
-    final List<DataPoint> imc = args.imc;
+    if (arg == null) {
+      final MyArguments args =
+          ModalRoute.of(context)!.settings.arguments as MyArguments;
+      data = args.datos;
+      imc = args.imc;
+    } else {
+      data = arg!.datos;
+      imc = arg!.imc;
+    }
 
     return WillPopScope(
       onWillPop: () async {
