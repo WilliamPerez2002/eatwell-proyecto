@@ -28,16 +28,20 @@ void main() async {
 
   String? id = await getData();
 
+  print(id);
+
   MyArguments? argumentos;
 
   if (id != null) {
-    inicial = 'menu';
+    inicial = 'menuPrincipal';
 
     Map<String, dynamic>? datos = await conexion.datos(id.trim());
 
     List<DataPoint> imc = await conexion.getDatosIMC(id.trim());
 
     argumentos = MyArguments(datos!, imc);
+  } else {
+    argumentos = null;
   }
 
   runApp(MaterialApp(
@@ -58,8 +62,12 @@ void main() async {
       },
       'menu': (context) {
         logger.i('Navegando a la pantalla de menú...');
+        return MyMenu(conexion: conexion);
+      },
+      'menuPrincipal': (context) {
+        logger.i('Navegando a la pantalla de menú...');
         return MyMenu(conexion: conexion, arg: argumentos);
-      }
+      },
     },
   ));
 }

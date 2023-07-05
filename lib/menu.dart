@@ -14,21 +14,24 @@ class MyMenu extends StatefulWidget {
 
 class _MyMenuState extends State<MyMenu> {
   conexion_Mysql get conexion => widget.conexion;
-  MyArguments? get arg => widget.arg;
 
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? data;
     final List<DataPoint> imc;
 
-    if (arg == null) {
+    print("${widget.arg?.datos} ARGUMENTOS");
+
+    if (widget.arg == null) {
       final MyArguments args =
           ModalRoute.of(context)!.settings.arguments as MyArguments;
       data = args.datos;
       imc = args.imc;
     } else {
-      data = arg!.datos;
-      imc = arg!.imc;
+      data = widget.arg!.datos;
+      imc = widget.arg!.imc;
+      widget.arg = null;
+      print("${widget.arg} ARGUMENTOS DENUEVO ");
     }
 
     return WillPopScope(

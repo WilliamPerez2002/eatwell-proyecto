@@ -231,9 +231,9 @@ class _MyLoginState extends State<MyLogin> {
                                           await retornoIMC(context);
 
                                       if (datos!.isNotEmpty && imc.isNotEmpty) {
+                                        limpiar();
                                         Navigator.pushNamed(context, 'menu',
                                             arguments: MyArguments(datos, imc));
-                                        limpiar();
                                       } else {
                                         await showDialog(
                                           context: context,

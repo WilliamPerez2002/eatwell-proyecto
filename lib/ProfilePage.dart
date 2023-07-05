@@ -493,7 +493,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             onPressed: () async {
                               if (await cerrarSesionDialog(context)) {
-                                Navigator.pushNamed(context, 'login');
+                                print("CERRAR SESION");
+
+                                Navigator.pushReplacementNamed(
+                                    context, 'login');
                               }
                             },
                             child: Textos(

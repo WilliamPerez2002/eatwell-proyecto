@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'herramientas/components.dart';
 import 'herramientas/conexion.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyRegister extends StatefulWidget {
   final conexion_Mysql conexion;
@@ -80,6 +81,8 @@ class _MyRegisterState extends State<MyRegister> {
     showLoadingDialog(context);
 
     await insertar();
+
+    await guardarDatos(nombreUsuarioController.text.trim());
 
     // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
@@ -299,6 +302,12 @@ class _MyRegisterState extends State<MyRegister> {
     emailController.clear();
     fechaNacimientoController.clear();
     contrasenaController.clear();
+  }
+
+  guardarDatos(String nombreUsuario) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('nombre', nombreUsuario);
+    print('Guardado');
   }
 
   @override
