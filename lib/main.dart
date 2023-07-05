@@ -1,10 +1,12 @@
 import 'package:eatwell/register.dart';
 import 'package:flutter/material.dart';
+import 'herramientas/components.dart';
 import 'herramientas/conexion.dart';
 import 'login.dart';
 import 'menu.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 
 void main() async {
@@ -22,9 +24,29 @@ void main() async {
 
   logger.d('Iniciando la aplicación...');
 
+  String inicial = 'login';
+
+  String? id = await getData();
+
+  print(id);
+
+  MyArguments? argumentos;
+
+  if (id != null) {
+    inicial = 'menuPrincipal';
+
+    Map<String, dynamic>? datos = await conexion.datos(id.trim());
+
+    List<DataPoint> imc = await conexion.getDatosIMC(id.trim());
+
+    argumentos = MyArguments(datos!, imc);
+  } else {
+    argumentos = null;
+  }
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: 'login',
+    initialRoute: inicial,
     routes: {
       'login': (context) {
         logger.i('Navegando a la pantalla de login...');
@@ -41,7 +63,19 @@ void main() async {
       'menu': (context) {
         logger.i('Navegando a la pantalla de menú...');
         return MyMenu(conexion: conexion);
-      }
+      },
+      'menuPrincipal': (context) {
+        logger.i('Navegando a la pantalla de menú...');
+        return MyMenu(conexion: conexion, arg: argumentos);
+      },
     },
   ));
+}
+
+Future<String?> getData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  //Return String
+  String? stringValue = await prefs.getString('nombre');
+  print("${stringValue} este es el valor");
+  return stringValue;
 }

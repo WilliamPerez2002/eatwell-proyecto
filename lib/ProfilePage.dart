@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'herramientas/components.dart';
 import 'herramientas/conexion.dart';
@@ -48,6 +49,59 @@ class _ProfilePageState extends State<ProfilePage> {
     int diferenciaEnDias = diferencia.inDays.abs();
 
     return diferenciaEnDias ~/ 365;
+  }
+
+  Future<void> showLoadingDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colores.rosa,
+          child: Container(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: Colores.morado,
+                ),
+                SizedBox(width: 20),
+                Text('Cargando...'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingDialog(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  Future<bool> cerrarSesionDialog(BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    bool dat = await cerrarSesion();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<bool> cerrarSesion() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.remove('nombre');
+      print('Datos borrados');
+      return true;
+    } catch (e) {
+      print('Error al borrar datos');
+      return false;
+    }
   }
 
   @override
@@ -437,8 +491,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                   Colores.amarillo),
                               elevation: MaterialStateProperty.all<double>(10),
                             ),
-                            onPressed: () {
-                              Navigator.pushNamed(context, 'login');
+                            onPressed: () async {
+                              if (await cerrarSesionDialog(context)) {
+                                print("CERRAR SESION");
+
+                                Navigator.pushReplacementNamed(
+                                    context, 'login');
+                              }
                             },
                             child: Textos(
                                 text: "Cerrar sesión",

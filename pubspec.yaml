@@ -38,6 +38,7 @@ dependencies:
   google_nav_bar: ^5.0.6
   charts_flutter: ^0.12.0
   fl_chart: ^0.35.0 
+  shared_preferences: ^2.2.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -107,26 +108,6 @@ flutter:
       fonts:
         - asset: fonts/BebasNeue-Regular.ttf
     
-    - family: FiraSansCondensed
-      fonts:
-        - asset: fonts/FiraSansCondensed-Black.ttf
-        - asset: fonts/FiraSansCondensed-BlackItalic.ttf
-        - asset: fonts/FiraSansCondensed-Bold.ttf
-        - asset: fonts/FiraSansCondensed-BoldItalic.ttf
-        - asset: fonts/FiraSansCondensed-ExtraBold.ttf
-        - asset: fonts/FiraSansCondensed-ExtraBoldItalic.ttf
-        - asset: fonts/FiraSansCondensed-ExtraLight.ttf
-        - asset: fonts/FiraSansCondensed-ExtraLightItalic.ttf
-        - asset: fonts/FiraSansCondensed-Italic.ttf
-        - asset: fonts/FiraSansCondensed-Light.ttf
-        - asset: fonts/FiraSansCondensed-LightItalic.ttf
-        - asset: fonts/FiraSansCondensed-Medium.ttf
-        - asset: fonts/FiraSansCondensed-MediumItalic.ttf
-        - asset: fonts/FiraSansCondensed-Regular.ttf
-        - asset: fonts/FiraSansCondensed-SemiBold.ttf
-        - asset: fonts/FiraSansCondensed-SemiBoldItalic.ttf
-        - asset: fonts/FiraSansCondensed-Thin.ttf
-        - asset: fonts/FiraSansCondensed-ThinItalic.ttf
-
+   
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
