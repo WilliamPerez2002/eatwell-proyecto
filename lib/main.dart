@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eatwell/register.dart';
 import 'package:flutter/material.dart';
 import 'herramientas/components.dart';
@@ -15,61 +17,119 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // ignore: unused_local_variable
-  final conexion = conexion_Mysql();
 
-  await conexion.initialize();
+  try {
+    // ignore: unused_local_variable
+    final conexion = conexion_Mysql();
 
-  Logger logger = Logger();
+    await conexion.initialize();
 
-  logger.d('Iniciando la aplicación...');
+    Logger logger = Logger();
 
-  String inicial = 'login';
+    logger.d('Iniciando la aplicación...');
 
-  String? id = await getData();
+    String inicial = 'login';
 
-  print(id);
+    String? id = await getData();
 
-  MyArguments? argumentos;
+    bool pasar = false;
 
-  if (id != null) {
-    inicial = 'menuPrincipal';
+    print(id);
 
-    Map<String, dynamic>? datos = await conexion.datos(id.trim());
+    MyArguments? argumentos;
 
-    List<DataPoint> imc = await conexion.getDatosIMC(id.trim());
+    if (id != null) {
+      inicial = 'menuPrincipal';
 
-    argumentos = MyArguments(datos!, imc);
-  } else {
-    argumentos = null;
+      Map<String, dynamic>? datos = await conexion.datos(id.trim());
+
+      List<DataPoint> imc = await conexion.getDatosIMC(id.trim());
+
+      argumentos = MyArguments(datos!, imc);
+
+      pasar = imc.isNotEmpty && datos.isNotEmpty;
+
+      print("datos ${datos} imc ${imc}");
+    }
+
+    print(pasar);
+
+    if (pasar) {
+      runApp(MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: inicial,
+        routes: {
+          'login': (context) {
+            logger.i('Navegando a la pantalla de login...');
+
+            return MyLogin(conexion: conexion);
+          },
+          'register': (context) {
+            logger.i('Navegando a la pantalla de registro...');
+
+            return MyRegister(
+              conexion: conexion,
+            );
+          },
+          'menu': (context) {
+            logger.i('Navegando a la pantalla de menú...');
+            return MyMenu(conexion: conexion);
+          },
+          'menuPrincipal': (context) {
+            logger.i('Navegando a la pantalla de menú...');
+            return MyMenu(conexion: conexion, arg: argumentos);
+          },
+        },
+      ));
+    } else {
+      logger.i('No hay datos para mostrar');
+      runApp(MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: Container(
+            color: Colores.rosa,
+            child: Center(
+              child: AlertDialog(
+                title: Text('Error!'),
+                content: Text("No hay internet, reinicie la app"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: _exitApp,
+                    child: Text('Aceptar',
+                        style: TextStyle(color: Colores.morado)),
+                  ),
+                ],
+                elevation: 54.0,
+              ),
+            ),
+          ),
+        ),
+      ));
+    }
+  } catch (e) {
+    runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+          color: Colores.rosa,
+          child: Center(
+            child: AlertDialog(
+              title: Text('Error!'),
+              content: Text("No hay internet, reinicie la app"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: _exitApp,
+                  child:
+                      Text('Aceptar', style: TextStyle(color: Colores.morado)),
+                ),
+              ],
+              elevation: 54.0,
+            ),
+          ),
+        ),
+      ),
+    ));
   }
-
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    initialRoute: inicial,
-    routes: {
-      'login': (context) {
-        logger.i('Navegando a la pantalla de login...');
-
-        return MyLogin(conexion: conexion);
-      },
-      'register': (context) {
-        logger.i('Navegando a la pantalla de registro...');
-
-        return MyRegister(
-          conexion: conexion,
-        );
-      },
-      'menu': (context) {
-        logger.i('Navegando a la pantalla de menú...');
-        return MyMenu(conexion: conexion);
-      },
-      'menuPrincipal': (context) {
-        logger.i('Navegando a la pantalla de menú...');
-        return MyMenu(conexion: conexion, arg: argumentos);
-      },
-    },
-  ));
 }
 
 Future<String?> getData() async {
@@ -78,4 +138,12 @@ Future<String?> getData() async {
   String? stringValue = await prefs.getString('nombre');
   print("${stringValue} este es el valor");
   return stringValue;
+}
+
+Future<void> _exitApp() async {
+  if (Platform.isAndroid) {
+    await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+  } else if (Platform.isIOS) {
+    exit(0);
+  }
 }

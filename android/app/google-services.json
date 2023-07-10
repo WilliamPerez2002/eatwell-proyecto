@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1097118506681",
+    "project_id": "proyectoagiles-47cf3",
+    "storage_bucket": "proyectoagiles-47cf3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097118506681:android:f7f097ce0a9c66d91a8568",
+        "android_client_info": {
+          "package_name": "com.example.eatwell"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097118506681-k8gn8l82sq5bpqkk1hjpbinrcds2qku8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqElAiuRdmo3k6RTeAgtHJzuqQ9paEbbQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097118506681-k8gn8l82sq5bpqkk1hjpbinrcds2qku8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

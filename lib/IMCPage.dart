@@ -301,6 +301,9 @@ class _IMCPageState extends State<IMCPage> {
 
                                                 await onDataUpdated(1);
 
+                                                pesoController.clear();
+                                                alturaController.clear();
+
                                                 await showDialog(
                                                   context: context,
                                                   builder: (_) => ExitoDialog(
