@@ -8,10 +8,10 @@ import 'package:mysql1/mysql1.dart';
 import 'components.dart';
 
 class conexion_Mysql {
-  static String host = 'sql9.freesqldatabase.com',
-      user = 'sql9627390',
-      password = 'zlz2f7cWFN',
-      db = 'sql9627390';
+  static String host = 'sql10.freesqldatabase.com',
+      user = 'sql10632847',
+      password = 'DJzHQRP6Qd',
+      db = 'sql10632847';
   static int port = 3306;
 
   late MySqlConnection connection;

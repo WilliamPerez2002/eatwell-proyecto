@@ -19,6 +19,9 @@ class _MyMenuState extends State<MyMenu> {
   Widget build(BuildContext context) {
     final Map<String, dynamic>? data;
     final List<DataPoint> imc;
+    final List<Map<String, dynamic>>? alimentos;
+    final List<Map<String, dynamic>>? alimentosConsumidos;
+    ;
 
     print("${widget.arg?.datos} ARGUMENTOS");
 
@@ -27,11 +30,19 @@ class _MyMenuState extends State<MyMenu> {
           ModalRoute.of(context)!.settings.arguments as MyArguments;
       data = args.datos;
       imc = args.imc;
+      alimentos = args.alimentos;
+      alimentosConsumidos = args.alimentosConsumidos;
     } else {
       data = widget.arg!.datos;
       imc = widget.arg!.imc;
+      alimentos = widget.arg!.alimentos;
+      alimentosConsumidos = widget.arg!.alimentosConsumidos;
       widget.arg = null;
       print("${widget.arg} ARGUMENTOS DENUEVO ");
+
+      alimentos.forEach((element) {
+        print(element['Nombre']);
+      });
     }
 
     return WillPopScope(
@@ -44,6 +55,8 @@ class _MyMenuState extends State<MyMenu> {
         conexion: conexion,
         datos: data,
         dataPoints: imc,
+        alimentos: alimentos,
+        alimentosConsumidos: alimentosConsumidos,
       ),
     );
   }

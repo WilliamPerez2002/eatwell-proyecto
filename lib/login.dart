@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print, use_build_context_synchronously
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'herramientas/components.dart';
 import 'package:eatwell/herramientas/envioEmail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +31,61 @@ class _MyLoginState extends State<MyLogin> {
   Future<bool> controlarSignIn() async {
     return await conexion.existeUsuario(
         nombreUsuarioController.text.trim(), contrasenaController.text.trim());
+  }
+
+  Future<List<Map<String, dynamic>>> recuperarTodosLosAlimentos() async {
+    final firestore = FirebaseFirestore.instance;
+
+    CollectionReference collectionReference = firestore.collection('Alimentos');
+
+    QuerySnapshot querySnapshot = await collectionReference.get();
+
+    List<Map<String, dynamic>> alimentos = [];
+
+    querySnapshot.docs.forEach((doc) {
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        data['id'] = doc.id;
+
+        alimentos.add(data);
+      }
+    });
+
+    alimentos.forEach((element) {
+      print(element['Nombre']);
+    });
+    return alimentos;
+  }
+
+  Future<List<Map<String, dynamic>>> recuperarAlimentosConsumidos() async {
+    final firestore = FirebaseFirestore.instance;
+
+    CollectionReference collectionReference =
+        firestore.collection('Alimentacion');
+
+    DateTime myDate = DateTime.now();
+
+    // Utiliza la clase DateFormat para formatear la fecha
+    String formattedDate = DateFormat('dd/MM/yyyy').format(myDate);
+
+    QuerySnapshot querySnapshotA = await collectionReference
+        .where('USUARIO', isEqualTo: nombreUsuarioController.text.trim())
+        .where('FECHA_INGRESO', isEqualTo: formattedDate)
+        .get();
+
+    List<Map<String, dynamic>> alimentosConsumidos = [];
+    querySnapshotA.docs.forEach((doc) {
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        print(data['USUARIO'] + " FUNCIONA " + data['FECHA_INGRESO']);
+        alimentosConsumidos.add(data);
+      }
+    });
+
+    alimentosConsumidos.forEach((element) {
+      print(element['USUARIO']);
+    });
+    return alimentosConsumidos;
   }
 
   Future<void> showLoadingDialog(BuildContext context) async {
@@ -115,6 +172,32 @@ class _MyLoginState extends State<MyLogin> {
     List<DataPoint> dat =
         await conexion.getDatosIMC(nombreUsuarioController.text.trim());
 
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<List<Map<String, dynamic>>> alimentosTodos(
+      BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<Map<String, dynamic>> dat = await recuperarTodosLosAlimentos();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
+  Future<List<Map<String, dynamic>>> alimentosConsumidos(
+      BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<Map<String, dynamic>> dat = await recuperarAlimentosConsumidos();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
     hideLoadingDialog(context);
 
     return dat;
@@ -230,10 +313,23 @@ class _MyLoginState extends State<MyLogin> {
                                       List<DataPoint> imc =
                                           await retornoIMC(context);
 
-                                      if (datos!.isNotEmpty && imc.isNotEmpty) {
+                                      List<Map<String, dynamic>> alimentos =
+                                          await alimentosTodos(context);
+
+                                      List<Map<String, dynamic>>
+                                          alimentosConsumidosA =
+                                          await alimentosConsumidos(context);
+
+                                      if (datos!.isNotEmpty &&
+                                          imc.isNotEmpty &&
+                                          alimentos.isNotEmpty) {
                                         limpiar();
                                         Navigator.pushNamed(context, 'menu',
-                                            arguments: MyArguments(datos, imc));
+                                            arguments: MyArguments(
+                                                datos,
+                                                imc,
+                                                alimentos,
+                                                alimentosConsumidosA));
                                       } else {
                                         await showDialog(
                                           context: context,

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'herramientas/components.dart';
@@ -45,6 +46,30 @@ class _MyRegisterState extends State<MyRegister> {
         apellidoController.text.trim(),
         int.parse(estaturaController.text.trim()),
         double.parse(pesoController.text.trim()));
+  }
+
+  Future<List<Map<String, dynamic>>> recuperarTodosLosAlimentos() async {
+    final firestore = FirebaseFirestore.instance;
+
+    CollectionReference collectionReference = firestore.collection('Alimentos');
+
+    QuerySnapshot querySnapshot = await collectionReference.get();
+
+    List<Map<String, dynamic>> alimentos = [];
+
+    querySnapshot.docs.forEach((doc) {
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        data['id'] = doc.id;
+
+        alimentos.add(data);
+      }
+    });
+
+    alimentos.forEach((element) {
+      print(element['Nombre']);
+    });
+    return alimentos;
   }
 
   void showLoadingDialog(BuildContext context) {
@@ -310,6 +335,19 @@ class _MyRegisterState extends State<MyRegister> {
     print('Guardado');
   }
 
+  Future<List<Map<String, dynamic>>> alimentosTodos(
+      BuildContext context) async {
+    // Mostrar el diálogo de carga
+    showLoadingDialog(context);
+
+    List<Map<String, dynamic>> dat = await recuperarTodosLosAlimentos();
+
+    // Ocultar el diálogo de carga después de completar la carga SQL
+    hideLoadingDialog(context);
+
+    return dat;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -524,6 +562,9 @@ class _MyRegisterState extends State<MyRegister> {
                                       barrierDismissible: false,
                                     );
 
+                                    List<Map<String, dynamic>> alimentos =
+                                        await alimentosTodos(context);
+
                                     DateFormat fecha = DateFormat('dd/MM/yyyy');
                                     String formattedDate =
                                         fecha.format(DateTime.now());
@@ -556,8 +597,11 @@ class _MyRegisterState extends State<MyRegister> {
                                           double.parse(imc), DateTime.now())
                                     ];
 
+                                    List<Map<String, dynamic>> a = [];
+
                                     Navigator.pushNamed(context, 'menu',
-                                        arguments: MyArguments(datos, data));
+                                        arguments: MyArguments(
+                                            datos, data, alimentos, a));
                                     limpiar();
                                   } catch (e) {
                                     if (e.toString().contains("'PRIMARY'")) {

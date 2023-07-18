@@ -29,6 +29,13 @@
             {
               "client_id": "1097118506681-k8gn8l82sq5bpqkk1hjpbinrcds2qku8.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1097118506681-4ss42c8ictbbu23qtss3shngu1cb5ks6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.eatwell.RunnerTests"
+              }
             }
           ]
         }

@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eatwell/register.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'herramientas/components.dart';
 import 'herramientas/conexion.dart';
 import 'login.dart';
@@ -9,6 +11,9 @@ import 'menu.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 // ignore: depend_on_referenced_packages
 
 void main() async {
@@ -21,6 +26,29 @@ void main() async {
   try {
     // ignore: unused_local_variable
     final conexion = conexion_Mysql();
+
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+
+    final firestore = FirebaseFirestore.instance;
+
+    CollectionReference collectionReference = firestore.collection('Alimentos');
+
+    QuerySnapshot querySnapshot = await collectionReference.get();
+
+    List<Map<String, dynamic>> alimentos = [];
+
+    querySnapshot.docs.forEach((doc) {
+      Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        data['id'] = doc.id;
+
+        alimentos.add(data);
+      }
+    });
+
+    CollectionReference collectionReferenceUsers =
+        firestore.collection('Alimentacion');
 
     await conexion.initialize();
 
@@ -45,14 +73,32 @@ void main() async {
 
       List<DataPoint> imc = await conexion.getDatosIMC(id.trim());
 
-      argumentos = MyArguments(datos!, imc);
+      DateTime myDate = DateTime.now();
 
-      pasar = imc.isNotEmpty && datos.isNotEmpty;
+      // Utiliza la clase DateFormat para formatear la fecha
+      String formattedDate = DateFormat('dd/MM/yyyy').format(myDate);
 
-      print("datos ${datos} imc ${imc}");
+      QuerySnapshot querySnapshotA = await collectionReferenceUsers
+          .where('USUARIO', isEqualTo: id)
+          .where('FECHA_INGRESO', isEqualTo: formattedDate)
+          .get();
+
+      List<Map<String, dynamic>> alimentosConsumidos = [];
+      querySnapshotA.docs.forEach((doc) {
+        Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
+        if (data != null) {
+          print(data['USUARIO'] + " FUNCIONA " + data['FECHA_INGRESO']);
+          data['id'] = doc.id;
+          alimentosConsumidos.add(data);
+        }
+      });
+
+      argumentos = MyArguments(datos!, imc, alimentos, alimentosConsumidos);
+
+      pasar = imc.isNotEmpty && datos.isNotEmpty && alimentos.isNotEmpty;
+
+      print(pasar);
     }
-
-    print(pasar);
 
     if (pasar) {
       runApp(MaterialApp(

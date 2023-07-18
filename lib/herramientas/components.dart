@@ -647,11 +647,16 @@ class Nav extends StatefulWidget {
   final conexion_Mysql? conexion;
   Map<String, dynamic>? datos;
   List<DataPoint> dataPoints;
+  List<Map<String, dynamic>> alimentos = [];
+  List<Map<String, dynamic>> alimentosConsumidos = [];
+
   Nav(
       {super.key,
       required this.conexion,
       required this.datos,
-      required this.dataPoints});
+      required this.dataPoints,
+      required this.alimentos,
+      required this.alimentosConsumidos});
 
   @override
   State<Nav> createState() => _NavState();
@@ -661,12 +666,23 @@ class _NavState extends State<Nav> {
   conexion_Mysql? get conexion => widget.conexion;
   Map<String, dynamic>? get datos => widget.datos;
   List<DataPoint> get dataPoints => widget.dataPoints;
+  List<Map<String, dynamic>> get alimentos => widget.alimentos;
+  List<Map<String, dynamic>> get alimentosConsumidos =>
+      widget.alimentosConsumidos;
+
   int _selectedIndex = 0;
   late Color color = Colores.rosa;
 
   void actualizarDatos(Map<String, dynamic> nuevosDatos) {
     setState(() {
       widget.datos?.addAll(nuevosDatos);
+    });
+  }
+
+  void actualizarAlimentos(List<Map<String, dynamic>> alimentosConsumidos) {
+    setState(() {
+      widget.alimentosConsumidos.clear();
+      widget.alimentosConsumidos.addAll(alimentosConsumidos);
     });
   }
 
@@ -702,7 +718,12 @@ class _NavState extends State<Nav> {
         actualizarDatos: actualizarDatos,
         dataPoints: dataPoints,
       ),
-      FoodPage(),
+      FoodPage(
+        alimentos: alimentos,
+        actualizarAlimentos: actualizarAlimentos,
+        alimentosConsumidos: alimentosConsumidos,
+        datos: datos,
+      ),
       ProfilePage(
           conexion: widget.conexion,
           data: datos,
@@ -989,6 +1010,332 @@ class _TablaDatosState extends State<TablaDatos> {
   }
 }
 
+class elementoAlimento extends StatefulWidget {
+  final String nombreAlimento;
+  final Function(String, String) borrarAlimento;
+  int cantidad;
+  final String img;
+  bool isVisibility;
+  double tamanoElement;
+  IconData icono;
+  String hora;
+  String id;
+
+  elementoAlimento({
+    super.key,
+    required this.nombreAlimento,
+    required this.cantidad,
+    required this.borrarAlimento,
+    required this.img,
+    required this.isVisibility,
+    required this.tamanoElement,
+    required this.icono,
+    required this.hora,
+    required this.id,
+  });
+
+  @override
+  State<elementoAlimento> createState() => _elementoAlimentoState();
+}
+
+class _elementoAlimentoState extends State<elementoAlimento> {
+  String get nombreAlimento => widget.nombreAlimento;
+  int get cantidad => widget.cantidad;
+  set cantidad(int value) => widget.cantidad = value;
+  Function(String, String) get borrarAlimento => widget.borrarAlimento;
+  double get tamanoElement => widget.tamanoElement.toDouble();
+  bool get isVisible => widget.isVisibility;
+
+  void borrar() {
+    borrarAlimento(widget.id, widget.nombreAlimento);
+  }
+
+  showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => ConfirmationDialog(
+        title: 'Confirmar Acción',
+        message: '¿Estás seguro de realizar esta acción?',
+        onConfirm: () {
+          borrar();
+          Navigator.pop(context); // Cerrar el diálogo después de confirmar
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 300,
+      height: tamanoElement, //61 solo y desplegado 120
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        padding: EdgeInsets.only(left: 10, top: 3, bottom: 3, right: 3),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 35,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colores.verde,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 9,
+                        offset: Offset(
+                            0, 4), // Desplazamiento de la sombra en x y y
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colores.verde,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: Image.asset(
+                        widget.img,
+                        fit: BoxFit.cover,
+                        width: 25,
+                        height: 25,
+                      ),
+                    ), // Ruta de la imagen que deseas mostrar
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(nombreAlimento,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(widget.hora,
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.bold)),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            widget.isVisibility = !isVisible;
+                            widget.tamanoElement =
+                                tamanoElement == 61 ? 220 : 61;
+                            widget.icono = tamanoElement == 61
+                                ? Icons.arrow_drop_down_rounded
+                                : Icons.arrow_drop_up_rounded;
+                          });
+                        },
+                        child: Icon(
+                          size: 30,
+                          widget.icono,
+                          color: Colores.verde,
+                        ),
+                      ),
+
+                      // Aquí puedes agregar más widgets en el medio
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Visibility(
+              visible: isVisible,
+              child: Container(
+                margin: const EdgeInsets.only(
+                    left: 20, right: 30, top: 20, bottom: 10),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 1.0,
+                      width: 217, // Altura de la línea
+                      color: Colores.morado, // Color de la línea
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                        width: 250,
+                        margin: const EdgeInsets.only(
+                            left: 10, right: 10, top: 10, bottom: 10),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Cantidad:",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              SizedBox(
+                                height: 25,
+                                width: 20,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text('$cantidad'),
+                                ),
+                              ),
+                              Column(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        cantidad++;
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.arrow_drop_up_rounded,
+                                      color: Colores.verde,
+                                    ),
+                                  ),
+                                  SizedBox.shrink(),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        if (cantidad > 1) {
+                                          cantidad--;
+                                        }
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.arrow_drop_down_rounded,
+                                      color: Colores.verde,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "vasos",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                      margin: EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                              height: 20,
+                              width: 75,
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colores.celeste),
+                                    elevation:
+                                        MaterialStateProperty.all<double>(10),
+                                  ),
+                                  onPressed: () async {},
+                                  child: Text("Actualizar",
+                                      style: TextStyle(
+                                          fontSize: 9,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.bold)))),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          SizedBox(
+                              height: 20,
+                              width: 70,
+                              child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            Colores.rosa),
+                                    elevation:
+                                        MaterialStateProperty.all<double>(10),
+                                  ),
+                                  onPressed: () async {
+                                    setState(() {
+                                      showConfirmationDialog(context);
+                                    });
+                                  },
+                                  child: Text("Eliminar",
+                                      style: TextStyle(
+                                          fontSize: 9,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.bold))))
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ConfirmationDialog extends StatelessWidget {
+  final String title;
+  final String message;
+  final VoidCallback onConfirm;
+
+  ConfirmationDialog({
+    required this.title,
+    required this.message,
+    required this.onConfirm,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('Cancelar',
+              style: TextStyle(color: Colores.morado, fontFamily: 'Lato')),
+        ),
+        ElevatedButton(
+            onPressed: onConfirm,
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colores.rosa),
+              elevation: MaterialStateProperty.all<double>(10),
+            ),
+            child: Text('Confirmar', style: TextStyle(fontFamily: 'Lato'))),
+      ],
+    );
+  }
+}
+
 class DataPoint {
   final double imc;
   final DateTime date;
@@ -1007,8 +1354,10 @@ class DataPoint {
 class MyArguments {
   final Map<String, dynamic> datos;
   final List<DataPoint> imc;
+  final List<Map<String, dynamic>> alimentos;
+  final List<Map<String, dynamic>> alimentosConsumidos;
 
-  MyArguments(this.datos, this.imc);
+  MyArguments(this.datos, this.imc, this.alimentos, this.alimentosConsumidos);
 }
 
 class Colores {
