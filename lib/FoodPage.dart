@@ -772,7 +772,7 @@ class _FoodPageState extends State<FoodPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Textos(
-                                  text: "Alimentos",
+                                  text: "Alimentos del dia",
                                   size: 30,
                                   color: Colores.morado,
                                   bold: true,
@@ -1107,11 +1107,11 @@ class _FoodPageState extends State<FoodPage> {
                                 width: 5,
                               ),
                               const ImageComponent(
-                                imagePath: 'assets/dieta-equilibrada.png',
+                                imagePath: 'assets/alimentosS.png',
                                 topMargin: 0,
                                 leftMargin: 0,
                                 rightMargin: 0,
-                                widthSize: 0.14,
+                                widthSize: 0.12,
                                 heightSize: 0.10,
                               ),
                             ],
@@ -1149,7 +1149,7 @@ class _FoodPageState extends State<FoodPage> {
                                 width: 20,
                               ),
                               ImageComponent(
-                                imagePath: 'assets/quitar.png',
+                                imagePath: 'assets/busquedaA.png',
                                 topMargin: 0,
                                 leftMargin: 0,
                                 rightMargin: 0,
@@ -1242,9 +1242,6 @@ class _FoodPageState extends State<FoodPage> {
                                                 setState(() {
                                                   listaDatosAlimentos = b;
                                                 });
-
-                                                print(
-                                                    "$listaDatosAlimentos LISTA DE DATOS ALIMENTOS");
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(SnackBar(
@@ -1260,7 +1257,7 @@ class _FoodPageState extends State<FoodPage> {
                                               //AQUI VA A IR EL METODO QUE VA A DIBUJAR EL HISTOGRAMA
                                             }
                                           },
-                                          child: Text("Dibujar"))),
+                                          child: Text("Buscar"))),
                                 ],
                               )),
                         ),
@@ -1516,7 +1513,7 @@ class _FoodPageState extends State<FoodPage> {
                                 width: 20,
                               ),
                               ImageComponent(
-                                imagePath: 'assets/quitar.png',
+                                imagePath: 'assets/alimentos-organicos.png',
                                 topMargin: 0,
                                 leftMargin: 0,
                                 rightMargin: 0,
