@@ -478,6 +478,100 @@ class _textFormFieldsDateIMC extends State<TextFormFieldsDateIMC> {
   }
 }
 
+class TextFormFieldsDateFood extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final int validacion;
+
+  const TextFormFieldsDateFood({
+    Key? key,
+    required this.hintText,
+    required this.controller,
+    required this.validacion,
+  }) : super(key: key);
+
+  @override
+  State<TextFormFieldsDateFood> createState() => _textFormFieldsDateFood();
+}
+
+class _textFormFieldsDateFood extends State<TextFormFieldsDateFood> {
+  bool presion = false;
+  DateTime date = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateFormat('dd/MM/yyyy')
+          .parseStrict('${date.day}/${date.month}/${date.year}'),
+      firstDate: DateTime(2023),
+      lastDate: DateTime(date.year + 1),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary:
+                  Colores.morado, // Cambia el color principal del DatePicker
+              onPrimary:
+                  Colors.white, // Cambia el color del texto del DatePicker
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
+      setState(() {
+        widget.controller.text = formattedDate;
+        // Actualiza el valor del TextFormField
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        // ignore: prefer_const_constructors
+        margin: EdgeInsets.symmetric(horizontal: 55, vertical: 0),
+        child: Column(children: [
+          TextFormField(
+            onSaved: (value) {},
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Campo vacío';
+              }
+
+              return null;
+            },
+            controller: widget.controller,
+            readOnly: true,
+            onTap: () {
+              presion = true;
+              _selectDate(
+                  context); // Abre el DatePicker cuando se toca el TextFormField
+            },
+            onChanged: (value) {
+              presion = false;
+            },
+            decoration: InputDecoration(
+              labelText: widget.hintText,
+              suffixIcon: Icon(Icons.calendar_today_outlined,
+                  color: presion ? Colores.morado : Colores.verde),
+              labelStyle: TextStyle(
+                color: Colores.morado,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colores.morado),
+              ),
+            ),
+          ),
+        ]));
+  }
+}
+
 // ignore: must_be_immutable
 class filaComDoble extends StatelessWidget {
   final double marginHorizontal;
@@ -679,10 +773,14 @@ class _NavState extends State<Nav> {
     });
   }
 
-  void actualizarAlimentos(List<Map<String, dynamic>> alimentosConsumidos) {
+  void actualizarAlimentos(
+    List<Map<String, dynamic>> alimentosConsumidos,
+    List<Map<String, dynamic>> alimentos,
+  ) {
     setState(() {
-      widget.alimentosConsumidos.clear();
       widget.alimentosConsumidos.addAll(alimentosConsumidos);
+
+      widget.alimentos.addAll(alimentos);
     });
   }
 
@@ -1010,9 +1108,101 @@ class _TablaDatosState extends State<TablaDatos> {
   }
 }
 
+class TablaDatosAlimentos extends StatefulWidget {
+  List<AlimentoConsumido> datas;
+
+  TablaDatosAlimentos({super.key, required this.datas});
+
+  @override
+  State<TablaDatosAlimentos> createState() => _TablaDatosAlimentosState();
+}
+
+class _TablaDatosAlimentosState extends State<TablaDatosAlimentos> {
+  List<AlimentoConsumido> get datas => widget.datas;
+  List<DataRow> dataRows = [];
+
+  convertirRows() {
+    dataRows = [];
+    for (var i = 0; i < datas.length; i++) {
+      dataRows.add(
+        DataRow(cells: [
+          DataCell(Text(
+            datas[i].getNombre(),
+            style: TextStyle(
+                fontSize: 15,
+                fontFamily: 'lato',
+                color: Colores.morado,
+                fontWeight: FontWeight.bold),
+          )),
+          DataCell(Text(
+            datas[i].getCalorias().toString(),
+            style: TextStyle(
+                fontSize: 15,
+                fontFamily: 'lato',
+                color: Colores.morado,
+                fontWeight: FontWeight.bold),
+          )),
+        ]),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    convertirRows();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colores.verde.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colores.morado,
+          width: 2,
+        ),
+      ),
+      constraints: BoxConstraints(maxHeight: 300),
+      width: 300, // Establece una altura máxima
+      child: SingleChildScrollView(
+        child: DataTable(
+          columns: [
+            DataColumn(
+                label: Text(
+              'ALIMENTO',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'lato',
+                  color: Colores.morado,
+                  fontWeight: FontWeight.bold),
+            )),
+            DataColumn(
+                label: Text(
+              'CALORIAS U',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: 'lato',
+                  color: Colores.morado,
+                  fontWeight: FontWeight.bold),
+            )),
+          ],
+          rows: [
+            for (var i = 0; i < dataRows.length; i++) dataRows[i],
+          ],
+          border: TableBorder(
+            horizontalInside: BorderSide(
+              color: Colores.morado,
+              width: 2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class elementoAlimento extends StatefulWidget {
   final String nombreAlimento;
   final Function(String, String) borrarAlimento;
+  final Function(int, String) actualizarAlimento;
   int cantidad;
   final String img;
   bool isVisibility;
@@ -1020,19 +1210,21 @@ class elementoAlimento extends StatefulWidget {
   IconData icono;
   String hora;
   String id;
+  String unidad;
 
-  elementoAlimento({
-    super.key,
-    required this.nombreAlimento,
-    required this.cantidad,
-    required this.borrarAlimento,
-    required this.img,
-    required this.isVisibility,
-    required this.tamanoElement,
-    required this.icono,
-    required this.hora,
-    required this.id,
-  });
+  elementoAlimento(
+      {super.key,
+      required this.nombreAlimento,
+      required this.cantidad,
+      required this.borrarAlimento,
+      required this.img,
+      required this.isVisibility,
+      required this.tamanoElement,
+      required this.icono,
+      required this.hora,
+      required this.id,
+      required this.actualizarAlimento,
+      required this.unidad});
 
   @override
   State<elementoAlimento> createState() => _elementoAlimentoState();
@@ -1045,9 +1237,15 @@ class _elementoAlimentoState extends State<elementoAlimento> {
   Function(String, String) get borrarAlimento => widget.borrarAlimento;
   double get tamanoElement => widget.tamanoElement.toDouble();
   bool get isVisible => widget.isVisibility;
+  Function(int, String) get actualizarAlimento => widget.actualizarAlimento;
+  int num = 0;
 
   void borrar() {
     borrarAlimento(widget.id, widget.nombreAlimento);
+  }
+
+  void actualizar() {
+    actualizarAlimento(widget.cantidad, widget.id);
   }
 
   showConfirmationDialog(BuildContext context) {
@@ -1055,7 +1253,7 @@ class _elementoAlimentoState extends State<elementoAlimento> {
       context: context,
       builder: (context) => ConfirmationDialog(
         title: 'Confirmar Acción',
-        message: '¿Estás seguro de realizar esta acción?',
+        message: '¿Estás seguro de que deseas eliminar?',
         onConfirm: () {
           borrar();
           Navigator.pop(context); // Cerrar el diálogo después de confirmar
@@ -1066,6 +1264,9 @@ class _elementoAlimentoState extends State<elementoAlimento> {
 
   @override
   Widget build(BuildContext context) {
+    if (num == 0) {
+      num = cantidad;
+    }
     return SizedBox(
       width: 300,
       height: tamanoElement, //61 solo y desplegado 120
@@ -1233,7 +1434,7 @@ class _elementoAlimentoState extends State<elementoAlimento> {
                                 width: 10,
                               ),
                               Text(
-                                "vasos",
+                                widget.unidad,
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontFamily: 'Lato',
@@ -1258,7 +1459,14 @@ class _elementoAlimentoState extends State<elementoAlimento> {
                                     elevation:
                                         MaterialStateProperty.all<double>(10),
                                   ),
-                                  onPressed: () async {},
+                                  onPressed: () async {
+                                    setState(() {
+                                      if (num != cantidad) {
+                                        actualizar();
+                                        num = 0;
+                                      }
+                                    });
+                                  },
                                   child: Text("Actualizar",
                                       style: TextStyle(
                                           fontSize: 9,
@@ -1299,6 +1507,301 @@ class _elementoAlimentoState extends State<elementoAlimento> {
         ),
       ),
     );
+  }
+}
+
+class elementoAlimentoBuscar extends StatefulWidget {
+  final String nombreAlimento;
+  int cantidad;
+  final String img;
+  bool isVisibility;
+  double tamanoElement;
+  IconData icono;
+  String hora;
+  String id;
+  String unidad;
+  String fecha;
+
+  elementoAlimentoBuscar(
+      {super.key,
+      required this.nombreAlimento,
+      required this.cantidad,
+      required this.img,
+      required this.isVisibility,
+      required this.tamanoElement,
+      required this.icono,
+      required this.hora,
+      required this.id,
+      required this.unidad,
+      required this.fecha});
+
+  @override
+  State<elementoAlimentoBuscar> createState() => _elementoAlimentoBuscarState();
+}
+
+class _elementoAlimentoBuscarState extends State<elementoAlimentoBuscar> {
+  String get nombreAlimento => widget.nombreAlimento;
+  int get cantidad => widget.cantidad;
+  set cantidad(int value) => widget.cantidad = value;
+  double get tamanoElement => widget.tamanoElement.toDouble();
+  bool get isVisible => widget.isVisibility;
+  String get fecha => widget.fecha;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 300,
+      height: tamanoElement, //61 solo y desplegado 120
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        padding: EdgeInsets.only(left: 10, top: 3, bottom: 3, right: 3),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 35,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colores.verde,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 9,
+                        offset: Offset(
+                            0, 4), // Desplazamiento de la sombra en x y y
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colores.rosa,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: Image.asset(
+                        widget.img,
+                        fit: BoxFit.cover,
+                        width: 25,
+                        height: 25,
+                      ),
+                    ), // Ruta de la imagen que deseas mostrar
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(nombreAlimento,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(widget.hora,
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.bold)),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            widget.isVisibility = !isVisible;
+                            widget.tamanoElement =
+                                tamanoElement == 61 ? 200 : 61;
+                            widget.icono = tamanoElement == 61
+                                ? Icons.arrow_drop_down_rounded
+                                : Icons.arrow_drop_up_rounded;
+                          });
+                        },
+                        child: Icon(
+                          size: 30,
+                          widget.icono,
+                          color: Colores.verde,
+                        ),
+                      ),
+
+                      // Aquí puedes agregar más widgets en el medio
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Visibility(
+              visible: isVisible,
+              child: Container(
+                margin: const EdgeInsets.only(
+                    left: 20, right: 30, top: 20, bottom: 10),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 1.0,
+                      width: 217, // Altura de la línea
+                      color: Colores.morado, // Color de la línea
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Container(
+                        width: 250,
+                        margin: const EdgeInsets.only(
+                            left: 10, right: 10, top: 10, bottom: 10),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Cantidad:",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              SizedBox(
+                                height: 25,
+                                width: 20,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text('$cantidad',
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.bold,
+                                          color: Colores.celeste)),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                widget.unidad,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        )),
+                    Container(
+                        width: 250,
+                        margin: const EdgeInsets.only(
+                            left: 10, right: 10, top: 10, bottom: 10),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Fecha:",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Lato',
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              SizedBox(
+                                height: 25,
+                                width: 90,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(fecha,
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          fontFamily: 'Lato',
+                                          fontWeight: FontWeight.bold,
+                                          color: Colores.celeste)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GraficoAlimentos extends StatefulWidget {
+  final List lista;
+  final double tamano;
+  const GraficoAlimentos(
+      {super.key, required this.lista, required this.tamano});
+
+  @override
+  State<GraficoAlimentos> createState() => _GraficoAlimentosState();
+}
+
+class _GraficoAlimentosState extends State<GraficoAlimentos> {
+  @override
+  Widget build(BuildContext context) {
+    widget.lista.forEach((element) {
+      print(element);
+    });
+
+    BarData myBar = BarData(
+        fruta: widget.lista[0],
+        grano: widget.lista[1],
+        bebida: widget.lista[2],
+        grasa: widget.lista[3],
+        proteina: widget.lista[4],
+        verdura: widget.lista[5],
+        lacteo: widget.lista[6]);
+    myBar.initializeBarData();
+
+    return BarChart(BarChartData(
+      maxY: widget.tamano,
+      minY: 0,
+      titlesData: FlTitlesData(show: false),
+      backgroundColor: Colores.verde.withOpacity(0.1),
+      gridData: FlGridData(
+          show: true,
+          drawHorizontalLine: true,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colores.verde, strokeWidth: 1)),
+      borderData: FlBorderData(
+        border: Border.all(
+            color: Colores.verde, width: 1, style: BorderStyle.solid),
+      ),
+      barGroups: myBar.barData
+          .map((e) => BarChartGroupData(
+                x: e.x,
+                barRods: [
+                  BarChartRodData(
+                    y: e.y,
+                    colors: [e.color],
+                    width: 30,
+                    borderRadius: BorderRadius.circular(5),
+                  )
+                ],
+              ))
+          .toList(),
+      groupsSpace: 13,
+    ));
   }
 }
 
@@ -1366,4 +1869,60 @@ class Colores {
   static Color rosa = Color.fromRGBO(255, 71, 70, 1.0);
   static Color celeste = Color.fromRGBO(72, 125, 118, 1.0);
   static Color amarillo = Color.fromRGBO(232, 218, 94, 1.0);
+}
+
+class IndividualBar {
+  final int x;
+  final double y;
+  final Color color;
+
+  IndividualBar({required this.x, required this.y, required this.color});
+}
+
+class BarData {
+  final double fruta;
+  final double grano;
+  final double bebida;
+  final double grasa;
+  final double proteina;
+  final double verdura;
+  final double lacteo;
+
+  BarData(
+      {required this.fruta,
+      required this.grano,
+      required this.bebida,
+      required this.grasa,
+      required this.proteina,
+      required this.verdura,
+      required this.lacteo});
+
+  List<IndividualBar> barData = [];
+
+  void initializeBarData() {
+    barData = [
+      IndividualBar(x: 0, y: fruta, color: Colores.verde),
+      IndividualBar(x: 1, y: grano, color: Colors.brown),
+      IndividualBar(x: 2, y: bebida, color: Colores.morado),
+      IndividualBar(x: 3, y: grasa, color: Colores.amarillo),
+      IndividualBar(x: 4, y: proteina, color: Colores.rosa),
+      IndividualBar(x: 5, y: verdura, color: Colores.celeste),
+      IndividualBar(x: 6, y: lacteo, color: Color.fromRGBO(13, 155, 221, 1))
+    ];
+  }
+}
+
+class AlimentoConsumido {
+  final String nombre;
+  final double calorias;
+
+  AlimentoConsumido({required this.nombre, required this.calorias});
+
+  String getNombre() {
+    return nombre;
+  }
+
+  double getCalorias() {
+    return calorias;
+  }
 }

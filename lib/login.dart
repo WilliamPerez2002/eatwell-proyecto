@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eatwell/herramientas/conexion.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'herramientas/components.dart';
 import 'package:eatwell/herramientas/envioEmail.dart';
@@ -78,6 +79,7 @@ class _MyLoginState extends State<MyLogin> {
       Map<String, dynamic>? data = doc.data() as Map<String, dynamic>?;
       if (data != null) {
         print(data['USUARIO'] + " FUNCIONA " + data['FECHA_INGRESO']);
+        data['id'] = doc.id;
         alimentosConsumidos.add(data);
       }
     });
@@ -93,22 +95,26 @@ class _MyLoginState extends State<MyLogin> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colores.rosa,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: Colores.morado,
+        return WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Dialog(
+              backgroundColor: Colores.rosa,
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colores.morado,
+                    ),
+                    SizedBox(width: 20),
+                    Text('Cargando...'),
+                  ],
                 ),
-                SizedBox(width: 20),
-                Text('Cargando...'),
-              ],
-            ),
-          ),
-        );
+              ),
+            ));
       },
     );
   }
@@ -354,7 +360,7 @@ class _MyLoginState extends State<MyLogin> {
                                       builder: (_) => ErrorDialog(
                                           text:
                                               'Problemas con el servidor, por favor, reinicie la aplicación'),
-                                      barrierDismissible: false,
+                                      barrierDismissible: true,
                                     );
 
                                     print(e);

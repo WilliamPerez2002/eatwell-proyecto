@@ -255,22 +255,26 @@ class conexion_Mysql {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: Color.fromRGBO(75, 68, 82, 1.0),
+        return WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Dialog(
+              backgroundColor: Colors.white,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Color.fromRGBO(75, 68, 82, 1.0),
+                    ),
+                    SizedBox(width: 20),
+                    Text('Cargando...'),
+                  ],
                 ),
-                SizedBox(width: 20),
-                Text('Cargando...'),
-              ],
-            ),
-          ),
-        );
+              ),
+            ));
       },
     );
   }

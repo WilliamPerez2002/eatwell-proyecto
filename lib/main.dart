@@ -60,7 +60,7 @@ void main() async {
 
     String? id = await getData();
 
-    bool pasar = false;
+    bool pasar = true;
 
     print(id);
 
@@ -91,6 +91,11 @@ void main() async {
           data['id'] = doc.id;
           alimentosConsumidos.add(data);
         }
+      });
+
+      alimentosConsumidos.forEach((element) {
+        print("HOLA SOY ELEMENTO CONSUMIDO");
+        print(element);
       });
 
       argumentos = MyArguments(datos!, imc, alimentos, alimentosConsumidos);
@@ -137,7 +142,7 @@ void main() async {
             child: Center(
               child: AlertDialog(
                 title: Text('Error!'),
-                content: Text("No hay internet, reinicie la app"),
+                content: Text("No hay conexion, reinicie la app"),
                 actions: <Widget>[
                   TextButton(
                     onPressed: _exitApp,
@@ -161,7 +166,7 @@ void main() async {
           child: Center(
             child: AlertDialog(
               title: Text('Error!'),
-              content: Text("No hay internet, reinicie la app"),
+              content: Text("No hay conexion, reinicie la app"),
               actions: <Widget>[
                 TextButton(
                   onPressed: _exitApp,

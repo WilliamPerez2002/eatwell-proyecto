@@ -21,7 +21,6 @@ class _MyMenuState extends State<MyMenu> {
     final List<DataPoint> imc;
     final List<Map<String, dynamic>>? alimentos;
     final List<Map<String, dynamic>>? alimentosConsumidos;
-    ;
 
     print("${widget.arg?.datos} ARGUMENTOS");
 
@@ -39,10 +38,6 @@ class _MyMenuState extends State<MyMenu> {
       alimentosConsumidos = widget.arg!.alimentosConsumidos;
       widget.arg = null;
       print("${widget.arg} ARGUMENTOS DENUEVO ");
-
-      alimentos.forEach((element) {
-        print(element['Nombre']);
-      });
     }
 
     return WillPopScope(

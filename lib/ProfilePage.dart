@@ -56,22 +56,26 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colores.rosa,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  color: Colores.morado,
+        return WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Dialog(
+              backgroundColor: Colores.rosa,
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Colores.morado,
+                    ),
+                    SizedBox(width: 20),
+                    Text('Cargando...'),
+                  ],
                 ),
-                SizedBox(width: 20),
-                Text('Cargando...'),
-              ],
-            ),
-          ),
-        );
+              ),
+            ));
       },
     );
   }
